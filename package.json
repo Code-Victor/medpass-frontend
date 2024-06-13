@@ -15,7 +15,8 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-query-kit": "^3.3.0",
-    "sonner": "^1.5.0"
+    "sonner": "^1.5.0",
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@tanstack/eslint-plugin-query": "^5.43.1",
