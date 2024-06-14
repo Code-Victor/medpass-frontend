@@ -6,6 +6,7 @@ import { AxiosError, isAxiosError } from "axios";
 import { Toaster, toast } from "sonner";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./pages/index.tsx";
+import Signup from "./pages/signup.tsx";
 const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {
@@ -26,8 +27,8 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "about",
-    element: <div>About</div>,
+    path: "signup",
+    element: <Signup />,
   },
 ]);
 
