@@ -5,8 +5,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AxiosError, isAxiosError } from "axios";
 import { Toaster, toast } from "sonner";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import Home from "./pages/index.tsx";
-import Signup from "./pages/signup.tsx";
+import Home from "@/pages/index.tsx";
+import AdminSignup from "@/pages/admin/signup.tsx";
+
 const queryClient = new QueryClient({
   defaultOptions: {
     mutations: {
@@ -27,8 +28,13 @@ const router = createBrowserRouter([
     element: <Home />,
   },
   {
-    path: "signup",
-    element: <Signup />,
+    path: "/admin",
+    children: [
+      {
+        path: "signup",
+        element: <AdminSignup />,
+      },
+    ],
   },
 ]);
 
