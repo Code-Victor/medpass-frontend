@@ -45,7 +45,7 @@ function SignupForm() {
     watch,
     formState: { errors },
     handleSubmit,
-  } = useForm({
+  } = useForm<SignupFormSchema>({
     resolver: zodResolver(signupFormSchema),
   });
   function onSubmit(data: SignupFormSchema) {
