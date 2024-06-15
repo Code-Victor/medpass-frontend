@@ -7,6 +7,7 @@ import { Toaster, toast } from "sonner";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "@/pages/index.tsx";
 import AdminSignup from "@/pages/admin/signup.tsx";
+import AdminDashboard from "@/pages/admin";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: "/admin",
     children: [
+    {
+      path: "",
+      element: <AdminDashboard/>
+    },
       {
         path: "signup",
         element: <AdminSignup />,
