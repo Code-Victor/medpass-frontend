@@ -5,6 +5,7 @@ const signupSearchSchema = z.object({
   step: z
     .enum(["create-account", "confirm-otp", "update-info"])
     .catch("create-account"),
+  email: z.string().optional(),
 });
 z;
 export const Route = createFileRoute("/admin/signup")({
