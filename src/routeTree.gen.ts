@@ -14,14 +14,21 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminSignupImport } from './routes/admin/signup'
+import { Route as AdminAdminauthImport } from './routes/admin/_adminauth'
 
 // Create Virtual Routes
 
+const AdminImport = createFileRoute('/admin')()
 const AboutLazyImport = createFileRoute('/about')()
 const IndexLazyImport = createFileRoute('/')()
-const AdminIndexLazyImport = createFileRoute('/admin/')()
+const AdminAdminauthIndexLazyImport = createFileRoute('/admin/_adminauth/')()
 
 // Create/Update Routes
+
+const AdminRoute = AdminImport.update({
+  path: '/admin',
+  getParentRoute: () => rootRoute,
+} as any)
 
 const AboutLazyRoute = AboutLazyImport.update({
   path: '/about',
@@ -33,15 +40,22 @@ const IndexLazyRoute = IndexLazyImport.update({
   getParentRoute: () => rootRoute,
 } as any).lazy(() => import('./routes/index.lazy').then((d) => d.Route))
 
-const AdminIndexLazyRoute = AdminIndexLazyImport.update({
-  path: '/admin/',
-  getParentRoute: () => rootRoute,
-} as any).lazy(() => import('./routes/admin/index.lazy').then((d) => d.Route))
-
 const AdminSignupRoute = AdminSignupImport.update({
-  path: '/admin/signup',
-  getParentRoute: () => rootRoute,
+  path: '/signup',
+  getParentRoute: () => AdminRoute,
 } as any)
+
+const AdminAdminauthRoute = AdminAdminauthImport.update({
+  id: '/_adminauth',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminAdminauthIndexLazyRoute = AdminAdminauthIndexLazyImport.update({
+  path: '/',
+  getParentRoute: () => AdminAdminauthRoute,
+} as any).lazy(() =>
+  import('./routes/admin/_adminauth/index.lazy').then((d) => d.Route),
+)
 
 // Populate the FileRoutesByPath interface
 
@@ -61,19 +75,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutLazyImport
       parentRoute: typeof rootRoute
     }
-    '/admin/signup': {
-      id: '/admin/signup'
-      path: '/admin/signup'
-      fullPath: '/admin/signup'
-      preLoaderRoute: typeof AdminSignupImport
-      parentRoute: typeof rootRoute
-    }
-    '/admin/': {
-      id: '/admin/'
+    '/admin': {
+      id: '/admin'
       path: '/admin'
       fullPath: '/admin'
-      preLoaderRoute: typeof AdminIndexLazyImport
+      preLoaderRoute: typeof AdminImport
       parentRoute: typeof rootRoute
+    }
+    '/admin/_adminauth': {
+      id: '/admin/_adminauth'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminAdminauthImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/signup': {
+      id: '/admin/signup'
+      path: '/signup'
+      fullPath: '/admin/signup'
+      preLoaderRoute: typeof AdminSignupImport
+      parentRoute: typeof AdminImport
+    }
+    '/admin/_adminauth/': {
+      id: '/admin/_adminauth/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AdminAdminauthIndexLazyImport
+      parentRoute: typeof AdminAdminauthImport
     }
   }
 }
@@ -83,8 +111,12 @@ declare module '@tanstack/react-router' {
 export const routeTree = rootRoute.addChildren({
   IndexLazyRoute,
   AboutLazyRoute,
-  AdminSignupRoute,
-  AdminIndexLazyRoute,
+  AdminRoute: AdminRoute.addChildren({
+    AdminAdminauthRoute: AdminAdminauthRoute.addChildren({
+      AdminAdminauthIndexLazyRoute,
+    }),
+    AdminSignupRoute,
+  }),
 })
 
 /* prettier-ignore-end */
@@ -97,8 +129,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/",
         "/about",
-        "/admin/signup",
-        "/admin/"
+        "/admin"
       ]
     },
     "/": {
@@ -107,11 +138,27 @@ export const routeTree = rootRoute.addChildren({
     "/about": {
       "filePath": "about.lazy.tsx"
     },
-    "/admin/signup": {
-      "filePath": "admin/signup.tsx"
+    "/admin": {
+      "filePath": "admin",
+      "children": [
+        "/admin/_adminauth",
+        "/admin/signup"
+      ]
     },
-    "/admin/": {
-      "filePath": "admin/index.lazy.tsx"
+    "/admin/_adminauth": {
+      "filePath": "admin/_adminauth.tsx",
+      "parent": "/admin",
+      "children": [
+        "/admin/_adminauth/"
+      ]
+    },
+    "/admin/signup": {
+      "filePath": "admin/signup.tsx",
+      "parent": "/admin"
+    },
+    "/admin/_adminauth/": {
+      "filePath": "admin/_adminauth/index.lazy.tsx",
+      "parent": "/admin/_adminauth"
     }
   }
 }
