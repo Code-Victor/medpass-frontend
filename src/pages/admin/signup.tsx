@@ -1,5 +1,5 @@
 import React from "react";
-import { useForm, Controller, SubmitHandler } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -42,7 +42,7 @@ const signupFormSchema = z
 type FormStep = "create-account" | "confirm-otp" | "update-info";
 type SignupFormSchema = z.infer<typeof signupFormSchema>;
 function SignupForm() {
-  let [searchParams, setSearchParams] = useSearchParams({
+  const [searchParams, setSearchParams] = useSearchParams({
     step: "create-account" as FormStep,
   }); // possible steps: "create-account","confirm-otp", "update-info"
 
@@ -59,6 +59,7 @@ function SignupForm() {
     setSearchParams({ step: "2" });
   }
   let email = watch("email");
+  console.log(email)
   if (searchParams.get("step") === "confirm-otp") {
     return (
       <section className="flex flex-col gap-4 max-w-xl mx-auto">
