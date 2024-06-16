@@ -1,11 +1,15 @@
-import React from "react";
+import { getRouteApi } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { useSearchParams } from "react-router-dom";
+
+
+
+const routeApi = getRouteApi("/admin/signup");
+
 const Signup = () => {
   return (
     <div className="grid md:grid-cols-3 min-h-screen">
@@ -39,13 +43,9 @@ const signupFormSchema = z
   .refine((data) => data.confirmPassword === data.password, {
     message: "Passwords do not match",
   });
-type FormStep = "create-account" | "confirm-otp" | "update-info";
 type SignupFormSchema = z.infer<typeof signupFormSchema>;
 function SignupForm() {
-  const [searchParams, setSearchParams] = useSearchParams({
-    step: "create-account" as FormStep,
-  }); // possible steps: "create-account","confirm-otp", "update-info"
-
+  const { step } = routeApi.useSearch();
   const {
     register,
     watch,
@@ -56,11 +56,10 @@ function SignupForm() {
   });
   function onSubmit(data: SignupFormSchema) {
     console.log(data);
-    setSearchParams({ step: "2" });
   }
   const email = watch("email");
-  console.log(email)
-  if (searchParams.get("step") === "confirm-otp") {
+  console.log(email);
+  if (step === "confirm-otp") {
     return (
       <section className="flex flex-col gap-4 max-w-xl mx-auto">
         <div className="space-y-2">
@@ -114,7 +113,7 @@ function SignupForm() {
       </section>
     );
   }
-  if (searchParams.get("step") === "update-info") {
+  if (step === "update-info") {
     return (
       <section className="flex flex-col gap-4 max-w-xl mx-auto">
         <div className="space-y-2">
