@@ -1,6 +1,5 @@
 import React from "react";
-import { Navbar } from "@/components/inc";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
 import Logo from "@/assets/logo.svg";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
@@ -11,6 +10,7 @@ import {
   Personalcard,
   Setting2,
   Profile,
+  Notification,
 } from "iconsax-react";
 
 //TODO: implement Authentication flow: https://tanstack.com/router/latest/docs/framework/react/examples/authenticated-routes
@@ -24,19 +24,23 @@ function AuthLayout() {
     <div className="bg-[#F7F7F8] dark:bg-bluedark-1 min-h-screen">
       <div className="flex">
         <Sidebar>
-          <SidebarItem
-            icon={<Category size={24} />}
-            text="Dashboard"
-            active={true}
-          />
+          <Link to="/admin" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Category size={24} />}
+                text="Dashboard"
+                active={isActive}
+              />
+            )}
+          </Link>
           <SidebarItem icon={<Hierarchy />} text="Department" />
           <SidebarItem icon={<Personalcard />} text="Patients Records" />
+          <SidebarItem icon={<Notification />} text="Notifications" />
           <SidebarItem icon={<Setting2 />} text="Settings" />
           <SidebarItem icon={<Profile />} text="My Profile" />
         </Sidebar>
         <div className="flex-1">
-          <Navbar />
-          <Outlet />  
+          <Outlet />
         </div>
       </div>
     </div>
