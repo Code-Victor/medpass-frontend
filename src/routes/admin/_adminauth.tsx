@@ -24,7 +24,7 @@ function AuthLayout() {
     <div className="bg-[#F7F7F8] dark:bg-bluedark-1 min-h-screen">
       <div className="flex">
         <Sidebar>
-          <Link to="/admin" preload="intent">
+          <Link to="/admin" activeOptions={{ exact: true }} preload="intent">
             {({ isActive }) => (
               <SidebarItem
                 icon={<Category size={24} />}
@@ -33,11 +33,51 @@ function AuthLayout() {
               />
             )}
           </Link>
-          <SidebarItem icon={<Hierarchy />} text="Department" />
-          <SidebarItem icon={<Personalcard />} text="Patients Records" />
-          <SidebarItem icon={<Notification />} text="Notifications" />
-          <SidebarItem icon={<Setting2 />} text="Settings" />
-          <SidebarItem icon={<Profile />} text="My Profile" />
+          <Link to="/admin/department" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Hierarchy />}
+                text="Department"
+                active={isActive}
+              />
+            )}
+          </Link>
+          <Link to="/admin/patient-records" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Personalcard />}
+                text="Patients Records"
+                active={isActive}
+              />
+            )}
+          </Link>
+          <Link to="/admin/notifications" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Notification />}
+                text="Notifications"
+                active={isActive}
+              />
+            )}
+          </Link>
+          <Link to="/admin/settings" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Setting2 />}
+                text="Settings"
+                active={isActive}
+              />
+            )}
+          </Link>
+          <Link to="/admin/profile" preload="intent">
+            {({ isActive }) => (
+              <SidebarItem
+                icon={<Profile />}
+                text="My Profile"
+                active={isActive}
+              />
+            )}
+          </Link>
         </Sidebar>
         <div className="flex-1">
           <Outlet />
@@ -76,7 +116,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
           />
         </div>
 
-        <ul className="flex-1 px-4 space-y-2.5">{children}</ul>
+        <ul className="flex-1 px-4 flex flex-col gap-2.5">{children}</ul>
       </aside>
     </SidebarContext.Provider>
   );
