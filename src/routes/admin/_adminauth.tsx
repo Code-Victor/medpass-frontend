@@ -131,6 +131,7 @@ export function SidebarItem({
           bg-[#e8eeff] text-[#445BB8] text-sm
           invisible opacity-20 -translate-x-3 transition-all
           group-hover:visible group-hover:opacity-100 group-hover:translate-x-0
+          text-nowrap
       `}
         >
           {text}
