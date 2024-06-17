@@ -79,7 +79,7 @@ function AuthLayout() {
             )}
           </Link>
         </Sidebar>
-        <div className="flex-1">
+        <div className="flex-1 pt-16">
           <Outlet />
         </div>
       </div>
