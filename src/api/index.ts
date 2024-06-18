@@ -48,7 +48,7 @@ export async function adminRegister(data: {
   firstName: string;
   lastName: string;
 }) {
-  const response = await api.post("/auth/admin/register", data);
+  const response = await api.post<{message:string;}>("/auth/admin/register", data);
   return response.data;
 }
 
