@@ -1,4 +1,4 @@
-import { StateCreator as ZStateCreator } from "zustand";
+import { StateCreator as ZStateCreator, create } from "zustand";
 import {
   createJSONStorage,
   persist,
@@ -42,3 +42,14 @@ const useStore = createWithEqualityFn<Slices>()(
 );
 
 export default useStore;
+
+interface AuthSlice {
+  token: string;
+  setToken: (token: string) => void;
+}
+export const useAuthStore = create(
+  subscribeWithSelector<AuthSlice>((set) => ({
+    token: "",
+    setToken: (token: string) => set({ token }),
+  }))
+);
