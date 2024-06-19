@@ -17,6 +17,7 @@ import React from "react";
 import { phoneNumberSchema } from "@/lib/utils";
 import { authRouter } from "@/api/routers";
 import { toast } from "sonner";
+import { useAuthStore } from "@/store";
 
 const routeApi = getRouteApi("/admin/signup");
 
@@ -66,6 +67,7 @@ type ConfirmOtpSchema = z.infer<typeof confirmOtpSchema>;
 function SignupForm() {
   const { step, email } = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
+  const setToken = useAuthStore((s) => s.setToken);
   const [resendOtpCountdown, setResendOtpCountdown] = React.useState(60);
   const { mutate: registerUser, isPending: isRegisterring } =
     authRouter.adminRegister.useMutation({
@@ -77,7 +79,9 @@ function SignupForm() {
   const { mutate: verifyOtp, isPending: isVerifyingOtp } =
     authRouter.verifyOTP.useMutation({
       onSuccess(data) {
-        toast.success(data.message ?? "OTP verified successfully");
+        
+        setToken(data.data.accessToken);
+        toast.success("OTP verified successfully");
         navigate({
           to: "/admin/create-hospital",
         });
