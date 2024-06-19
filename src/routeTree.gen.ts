@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminSignupImport } from './routes/admin/signup'
+import { Route as AdminLoginImport } from './routes/admin/login'
 import { Route as AdminCreateHospitalImport } from './routes/admin/create-hospital'
 import { Route as AdminAdminauthImport } from './routes/admin/_adminauth'
 
@@ -67,6 +68,11 @@ const IndexLazyRoute = IndexLazyImport.update({
 
 const AdminSignupRoute = AdminSignupImport.update({
   path: '/signup',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminLoginRoute = AdminLoginImport.update({
+  path: '/login',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -200,6 +206,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCreateHospitalImport
       parentRoute: typeof AdminImport
     }
+    '/admin/login': {
+      id: '/admin/login'
+      path: '/login'
+      fullPath: '/admin/login'
+      preLoaderRoute: typeof AdminLoginImport
+      parentRoute: typeof AdminImport
+    }
     '/admin/signup': {
       id: '/admin/signup'
       path: '/signup'
@@ -291,6 +304,7 @@ export const routeTree = rootRoute.addChildren({
       AdminAdminauthPatientRecordsRecordsPatientIdLazyRoute,
     }),
     AdminCreateHospitalRoute,
+    AdminLoginRoute,
     AdminSignupRoute,
   }),
 })
@@ -319,6 +333,7 @@ export const routeTree = rootRoute.addChildren({
       "children": [
         "/admin/_adminauth",
         "/admin/create-hospital",
+        "/admin/login",
         "/admin/signup"
       ]
     },
@@ -339,6 +354,10 @@ export const routeTree = rootRoute.addChildren({
     },
     "/admin/create-hospital": {
       "filePath": "admin/create-hospital.tsx",
+      "parent": "/admin"
+    },
+    "/admin/login": {
+      "filePath": "admin/login.tsx",
       "parent": "/admin"
     },
     "/admin/signup": {

@@ -24,11 +24,21 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { phoneNumberSchema } from "@/lib/utils";
+import React from "react";
+import { patientRouter } from "@/api/routers";
 export const Route = createLazyFileRoute("/admin/_adminauth/patient-records/")({
   component: PatientRecords,
 });
 
 function PatientRecords() {
+  const [search, setSearch] = React.useState("");
+  const [open, setOpen] = React.useState(false);
+  const { data } = patientRouter.search.useQuery({
+    enabled: search.length > 3,
+    variables: {
+      query: search,
+    },
+  });
   return (
     <main className="max-w-5xl mx-auto px-4">
       <div className="space-y-1">
@@ -38,7 +48,7 @@ function PatientRecords() {
         </p>
       </div>
       <div className="flex flex-col items-center gap-4">
-        <div className="mx-auto max-w-md w-full  relative mt-8">
+        <div className="mx-auto max-w-lg w-full  relative mt-8">
           <Label
             htmlFor="patient-search"
             className="w-10 grid place-items-center absolute left-0 top-0 bottom-0"
@@ -47,14 +57,16 @@ function PatientRecords() {
             <SearchNormal1 color="#292D32" size={24} />
           </Label>
           <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             id="patient-search"
             className="pl-10 py-4 bg-white"
             placeholder="Enter unique patient ID"
           />
         </div>
-        <PatientCard />
+        {data && <PatientCard />}
         <p className="text-center">Or</p>
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button>Register Patient</Button>
           </DialogTrigger>

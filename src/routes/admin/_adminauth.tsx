@@ -1,5 +1,5 @@
 import React from "react";
-import { createFileRoute, Outlet, Link } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, redirect } from "@tanstack/react-router";
 import Logo from "@/assets/logo.svg";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
@@ -12,10 +12,24 @@ import {
   Profile,
   Notification,
 } from "iconsax-react";
+import { authRouter } from "@/api/routers";
 
 //TODO: implement Authentication flow: https://tanstack.com/router/latest/docs/framework/react/examples/authenticated-routes
 export const Route = createFileRoute("/admin/_adminauth")({
-  beforeLoad: () => {},
+  beforeLoad: async ({ context: { queryClient },location }) => {
+    try {
+      await queryClient.ensureQueryData(authRouter.me.getFetchOptions());
+    } catch (error) {
+       throw redirect({
+        to: '/admin/login',
+        search: {
+          redirect: location.href,
+        },
+      })
+    }
+
+  },
+  
   component: AuthLayout,
 });
 
