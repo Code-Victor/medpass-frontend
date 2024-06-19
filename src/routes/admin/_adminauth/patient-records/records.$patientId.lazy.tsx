@@ -43,6 +43,7 @@ function Records() {
           <PatientComplaints />
           <MedicalReport />
           <Treatment />
+          <Prescription />
         </div>
       </section>
     </main>
@@ -88,7 +89,7 @@ function PatientComplaints() {
       <ul>
         {["1", "2", "3"].map((data) => {
           return (
-            <li className="flex gap-2 mt-2 items-baseline">
+            <li key={data} className="flex gap-2 mt-2 items-baseline">
               <div className="w-2 h-2 bg-[#6C6E79] rounded-full grid place-items-center" />
               <div className="flex-1">
                 <h3 className="text-sm text-gray-12">
@@ -119,9 +120,9 @@ function MedicalReport() {
         </div>
       </div>
       <ul>
-        {["1", "2", "3"].map((data) => {
+        {["1", "2", "3"].map((d) => {
           return (
-            <li className="flex gap-2 mt-2 items-baseline">
+            <li key={d} className="flex gap-2 mt-2 items-baseline">
               <div className="w-2 h-2 bg-[#6C6E79] rounded-full grid place-items-center" />
               <div className="flex-1">
                 <h3 className="text-sm text-gray-12">
@@ -176,17 +177,16 @@ function TreatmentItem() {
   );
 }
 
-
-function Prescription(){
+function Prescription() {
   return (
     <div className="bg-white flex flex-col gap-4 rounded-xl p-4">
       <h2 className="font-semibold">Treatment</h2>
-      <TreatmentItem />
-      <TreatmentItem />
+      <PrescriptionItem />
+      <PrescriptionItem />
     </div>
   );
 }
 
-function PrescriptionItem(){
-  
+function PrescriptionItem() {
+  return <div></div>;
 }

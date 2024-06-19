@@ -32,7 +32,7 @@ const addDepartmentSchema = z.object({
   departmentEmail: z.string().email("Invalid email address").optional(),
   hodName: z.string().min(1, "Head of department name is required"),
   hodEmail: z.string().email("Invalid email address"),
-  descriptiion: z.string().min(1, "Description is required"),
+  description: z.string().min(1, "Description is required"),
 });
 type AddDepartmentSchema = z.infer<typeof addDepartmentSchema>;
 export const Route = createLazyFileRoute("/admin/_adminauth/department/")({
@@ -112,7 +112,7 @@ function Department() {
                 />
                 <FormField
                   control={addDepartmentForm.control}
-                  name="descriptiion"
+                  name="description"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Description</FormLabel>
