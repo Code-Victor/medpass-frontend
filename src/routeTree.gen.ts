@@ -14,6 +14,7 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as AdminSignupImport } from './routes/admin/signup'
+import { Route as AdminCreateHospitalImport } from './routes/admin/create-hospital'
 import { Route as AdminAdminauthImport } from './routes/admin/_adminauth'
 
 // Create Virtual Routes
@@ -28,14 +29,23 @@ const AdminAdminauthSettingsLazyImport = createFileRoute(
 const AdminAdminauthProfileLazyImport = createFileRoute(
   '/admin/_adminauth/profile',
 )()
-const AdminAdminauthPatientRecordsLazyImport = createFileRoute(
-  '/admin/_adminauth/patient-records',
-)()
 const AdminAdminauthNotificationsLazyImport = createFileRoute(
   '/admin/_adminauth/notifications',
 )()
-const AdminAdminauthDepartmentLazyImport = createFileRoute(
-  '/admin/_adminauth/department',
+const AdminAdminauthPatientRecordsIndexLazyImport = createFileRoute(
+  '/admin/_adminauth/patient-records/',
+)()
+const AdminAdminauthDepartmentIndexLazyImport = createFileRoute(
+  '/admin/_adminauth/department/',
+)()
+const AdminAdminauthPatientRecordsPatientIdLazyImport = createFileRoute(
+  '/admin/_adminauth/patient-records/$patientId',
+)()
+const AdminAdminauthDepartmentDepartmentNameLazyImport = createFileRoute(
+  '/admin/_adminauth/department/$departmentName',
+)()
+const AdminAdminauthPatientRecordsRecordsPatientIdLazyImport = createFileRoute(
+  '/admin/_adminauth/patient-records/records/$patientId',
 )()
 
 // Create/Update Routes
@@ -57,6 +67,11 @@ const IndexLazyRoute = IndexLazyImport.update({
 
 const AdminSignupRoute = AdminSignupImport.update({
   path: '/signup',
+  getParentRoute: () => AdminRoute,
+} as any)
+
+const AdminCreateHospitalRoute = AdminCreateHospitalImport.update({
+  path: '/create-hospital',
   getParentRoute: () => AdminRoute,
 } as any)
 
@@ -88,16 +103,6 @@ const AdminAdminauthProfileLazyRoute = AdminAdminauthProfileLazyImport.update({
   import('./routes/admin/_adminauth/profile.lazy').then((d) => d.Route),
 )
 
-const AdminAdminauthPatientRecordsLazyRoute =
-  AdminAdminauthPatientRecordsLazyImport.update({
-    path: '/patient-records',
-    getParentRoute: () => AdminAdminauthRoute,
-  } as any).lazy(() =>
-    import('./routes/admin/_adminauth/patient-records.lazy').then(
-      (d) => d.Route,
-    ),
-  )
-
 const AdminAdminauthNotificationsLazyRoute =
   AdminAdminauthNotificationsLazyImport.update({
     path: '/notifications',
@@ -106,12 +111,54 @@ const AdminAdminauthNotificationsLazyRoute =
     import('./routes/admin/_adminauth/notifications.lazy').then((d) => d.Route),
   )
 
-const AdminAdminauthDepartmentLazyRoute =
-  AdminAdminauthDepartmentLazyImport.update({
-    path: '/department',
+const AdminAdminauthPatientRecordsIndexLazyRoute =
+  AdminAdminauthPatientRecordsIndexLazyImport.update({
+    path: '/patient-records/',
     getParentRoute: () => AdminAdminauthRoute,
   } as any).lazy(() =>
-    import('./routes/admin/_adminauth/department.lazy').then((d) => d.Route),
+    import('./routes/admin/_adminauth/patient-records/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AdminAdminauthDepartmentIndexLazyRoute =
+  AdminAdminauthDepartmentIndexLazyImport.update({
+    path: '/department/',
+    getParentRoute: () => AdminAdminauthRoute,
+  } as any).lazy(() =>
+    import('./routes/admin/_adminauth/department/index.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AdminAdminauthPatientRecordsPatientIdLazyRoute =
+  AdminAdminauthPatientRecordsPatientIdLazyImport.update({
+    path: '/patient-records/$patientId',
+    getParentRoute: () => AdminAdminauthRoute,
+  } as any).lazy(() =>
+    import('./routes/admin/_adminauth/patient-records/$patientId.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AdminAdminauthDepartmentDepartmentNameLazyRoute =
+  AdminAdminauthDepartmentDepartmentNameLazyImport.update({
+    path: '/department/$departmentName',
+    getParentRoute: () => AdminAdminauthRoute,
+  } as any).lazy(() =>
+    import('./routes/admin/_adminauth/department/$departmentName.lazy').then(
+      (d) => d.Route,
+    ),
+  )
+
+const AdminAdminauthPatientRecordsRecordsPatientIdLazyRoute =
+  AdminAdminauthPatientRecordsRecordsPatientIdLazyImport.update({
+    path: '/patient-records/records/$patientId',
+    getParentRoute: () => AdminAdminauthRoute,
+  } as any).lazy(() =>
+    import(
+      './routes/admin/_adminauth/patient-records/records.$patientId.lazy'
+    ).then((d) => d.Route),
   )
 
 // Populate the FileRoutesByPath interface
@@ -146,6 +193,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminauthImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/create-hospital': {
+      id: '/admin/create-hospital'
+      path: '/create-hospital'
+      fullPath: '/admin/create-hospital'
+      preLoaderRoute: typeof AdminCreateHospitalImport
+      parentRoute: typeof AdminImport
+    }
     '/admin/signup': {
       id: '/admin/signup'
       path: '/signup'
@@ -153,25 +207,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminSignupImport
       parentRoute: typeof AdminImport
     }
-    '/admin/_adminauth/department': {
-      id: '/admin/_adminauth/department'
-      path: '/department'
-      fullPath: '/admin/department'
-      preLoaderRoute: typeof AdminAdminauthDepartmentLazyImport
-      parentRoute: typeof AdminAdminauthImport
-    }
     '/admin/_adminauth/notifications': {
       id: '/admin/_adminauth/notifications'
       path: '/notifications'
       fullPath: '/admin/notifications'
       preLoaderRoute: typeof AdminAdminauthNotificationsLazyImport
-      parentRoute: typeof AdminAdminauthImport
-    }
-    '/admin/_adminauth/patient-records': {
-      id: '/admin/_adminauth/patient-records'
-      path: '/patient-records'
-      fullPath: '/admin/patient-records'
-      preLoaderRoute: typeof AdminAdminauthPatientRecordsLazyImport
       parentRoute: typeof AdminAdminauthImport
     }
     '/admin/_adminauth/profile': {
@@ -195,6 +235,41 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdminauthIndexLazyImport
       parentRoute: typeof AdminAdminauthImport
     }
+    '/admin/_adminauth/department/$departmentName': {
+      id: '/admin/_adminauth/department/$departmentName'
+      path: '/department/$departmentName'
+      fullPath: '/admin/department/$departmentName'
+      preLoaderRoute: typeof AdminAdminauthDepartmentDepartmentNameLazyImport
+      parentRoute: typeof AdminAdminauthImport
+    }
+    '/admin/_adminauth/patient-records/$patientId': {
+      id: '/admin/_adminauth/patient-records/$patientId'
+      path: '/patient-records/$patientId'
+      fullPath: '/admin/patient-records/$patientId'
+      preLoaderRoute: typeof AdminAdminauthPatientRecordsPatientIdLazyImport
+      parentRoute: typeof AdminAdminauthImport
+    }
+    '/admin/_adminauth/department/': {
+      id: '/admin/_adminauth/department/'
+      path: '/department'
+      fullPath: '/admin/department'
+      preLoaderRoute: typeof AdminAdminauthDepartmentIndexLazyImport
+      parentRoute: typeof AdminAdminauthImport
+    }
+    '/admin/_adminauth/patient-records/': {
+      id: '/admin/_adminauth/patient-records/'
+      path: '/patient-records'
+      fullPath: '/admin/patient-records'
+      preLoaderRoute: typeof AdminAdminauthPatientRecordsIndexLazyImport
+      parentRoute: typeof AdminAdminauthImport
+    }
+    '/admin/_adminauth/patient-records/records/$patientId': {
+      id: '/admin/_adminauth/patient-records/records/$patientId'
+      path: '/patient-records/records/$patientId'
+      fullPath: '/admin/patient-records/records/$patientId'
+      preLoaderRoute: typeof AdminAdminauthPatientRecordsRecordsPatientIdLazyImport
+      parentRoute: typeof AdminAdminauthImport
+    }
   }
 }
 
@@ -205,13 +280,17 @@ export const routeTree = rootRoute.addChildren({
   AboutLazyRoute,
   AdminRoute: AdminRoute.addChildren({
     AdminAdminauthRoute: AdminAdminauthRoute.addChildren({
-      AdminAdminauthDepartmentLazyRoute,
       AdminAdminauthNotificationsLazyRoute,
-      AdminAdminauthPatientRecordsLazyRoute,
       AdminAdminauthProfileLazyRoute,
       AdminAdminauthSettingsLazyRoute,
       AdminAdminauthIndexLazyRoute,
+      AdminAdminauthDepartmentDepartmentNameLazyRoute,
+      AdminAdminauthPatientRecordsPatientIdLazyRoute,
+      AdminAdminauthDepartmentIndexLazyRoute,
+      AdminAdminauthPatientRecordsIndexLazyRoute,
+      AdminAdminauthPatientRecordsRecordsPatientIdLazyRoute,
     }),
+    AdminCreateHospitalRoute,
     AdminSignupRoute,
   }),
 })
@@ -239,6 +318,7 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "admin",
       "children": [
         "/admin/_adminauth",
+        "/admin/create-hospital",
         "/admin/signup"
       ]
     },
@@ -246,28 +326,27 @@ export const routeTree = rootRoute.addChildren({
       "filePath": "admin/_adminauth.tsx",
       "parent": "/admin",
       "children": [
-        "/admin/_adminauth/department",
         "/admin/_adminauth/notifications",
-        "/admin/_adminauth/patient-records",
         "/admin/_adminauth/profile",
         "/admin/_adminauth/settings",
-        "/admin/_adminauth/"
+        "/admin/_adminauth/",
+        "/admin/_adminauth/department/$departmentName",
+        "/admin/_adminauth/patient-records/$patientId",
+        "/admin/_adminauth/department/",
+        "/admin/_adminauth/patient-records/",
+        "/admin/_adminauth/patient-records/records/$patientId"
       ]
+    },
+    "/admin/create-hospital": {
+      "filePath": "admin/create-hospital.tsx",
+      "parent": "/admin"
     },
     "/admin/signup": {
       "filePath": "admin/signup.tsx",
       "parent": "/admin"
     },
-    "/admin/_adminauth/department": {
-      "filePath": "admin/_adminauth/department.lazy.tsx",
-      "parent": "/admin/_adminauth"
-    },
     "/admin/_adminauth/notifications": {
       "filePath": "admin/_adminauth/notifications.lazy.tsx",
-      "parent": "/admin/_adminauth"
-    },
-    "/admin/_adminauth/patient-records": {
-      "filePath": "admin/_adminauth/patient-records.lazy.tsx",
       "parent": "/admin/_adminauth"
     },
     "/admin/_adminauth/profile": {
@@ -280,6 +359,26 @@ export const routeTree = rootRoute.addChildren({
     },
     "/admin/_adminauth/": {
       "filePath": "admin/_adminauth/index.lazy.tsx",
+      "parent": "/admin/_adminauth"
+    },
+    "/admin/_adminauth/department/$departmentName": {
+      "filePath": "admin/_adminauth/department/$departmentName.lazy.tsx",
+      "parent": "/admin/_adminauth"
+    },
+    "/admin/_adminauth/patient-records/$patientId": {
+      "filePath": "admin/_adminauth/patient-records/$patientId.lazy.tsx",
+      "parent": "/admin/_adminauth"
+    },
+    "/admin/_adminauth/department/": {
+      "filePath": "admin/_adminauth/department/index.lazy.tsx",
+      "parent": "/admin/_adminauth"
+    },
+    "/admin/_adminauth/patient-records/": {
+      "filePath": "admin/_adminauth/patient-records/index.lazy.tsx",
+      "parent": "/admin/_adminauth"
+    },
+    "/admin/_adminauth/patient-records/records/$patientId": {
+      "filePath": "admin/_adminauth/patient-records/records.$patientId.lazy.tsx",
       "parent": "/admin/_adminauth"
     }
   }
