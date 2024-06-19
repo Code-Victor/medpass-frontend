@@ -157,6 +157,7 @@ function SignupForm() {
                 {resendOtpCountdown === 0 ? (
                   <Button
                     variant="ghost"
+                    type="button"
                     loading={isResendingOTP}
                     onClick={() => (email ? resendOTP({ email }) : null)}
                   >
