@@ -1,6 +1,10 @@
 import axios from "axios";
 import { useAuthStore } from "@/store";
-import { GetCurrentUserResponse } from "./types";
+import {
+  GetCurrentUserResponse,
+  LoginResponse,
+  VerifyOTPResponse,
+} from "./types";
 
 //   "email": "victor.hamzat@kibo.school",
 //   "password": "@Promise05"
@@ -38,7 +42,7 @@ tokenInterceptors();
 
 export async function getCurrentUser() {
   const response = await api.get<GetCurrentUserResponse>("/user/me");
-  return response.data;
+  return response.data.data;
 }
 
 export async function adminRegister(data: {
@@ -67,7 +71,7 @@ export async function regularRegister(data: {
 //TODO: KYC upload
 
 export async function verifyOTP(data: { email: string; otp: string }) {
-  const response = await api.post("/auth/otp/verify", data);
+  const response = await api.post<VerifyOTPResponse>("/auth/otp/verify", data);
   return response.data;
 }
 
@@ -75,9 +79,9 @@ export async function resendOTP(data: { email: string }) {
   const response = await api.post("/auth/otp/resend", data);
   return response.data;
 }
-  
+
 export async function login(data: { email: string; password: string }) {
-  const response = await api.post("/auth/login", data);
+  const response = await api.post<LoginResponse>("/auth/login", data);
   return response.data;
 }
 
@@ -152,7 +156,7 @@ export async function updatePatientRecord({
   return response.data;
 }
 
-export async function searchPatient(query: string) {
+export async function searchPatient({ query }: { query: string }) {
   const response = await api.get(`/patient/search?query=${query}`);
   return response.data;
 }
@@ -203,7 +207,7 @@ export async function createHospital(data: {
   name: string;
   address: string;
   phone: string;
-  cac_number: number;
+  cac_number: string;
   website_url: string;
 }) {
   const response = await api.post("/hospital", data);
@@ -237,7 +241,8 @@ export async function createDepartment({
 }: {
   hospitalId: string;
   departmentName: string;
-  departmentEmail: string;
+  departmentEmail?: string;
+  hodName: string;
   hodEmail: string;
   description: string;
 }) {

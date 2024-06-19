@@ -2,6 +2,9 @@ import { router } from "react-query-kit";
 import * as api from "..";
 
 export const authRouter = router("auth", {
+  me: router.query({
+    fetcher: api.getCurrentUser,
+  }),
   adminRegister: router.mutation({
     mutationFn: api.adminRegister,
   }),
@@ -38,7 +41,7 @@ export const patientRouter = router("patient", {
   updatePatientRecord: router.mutation({
     mutationFn: api.updatePatientRecord,
   }),
-  searchPatient: router.query({
+  search: router.query({
     fetcher: api.searchPatient,
   }),
   getPatient: router.query({
@@ -74,6 +77,9 @@ export const hospitalRouter = router("hospital", {
 export const departmentRouter = router("department", {
   createDepartment: router.mutation({
     mutationFn: api.createDepartment,
+  }),
+  getAllDepartments: router.query({
+    fetcher: api.getDepartments,
   }),
   getDepartment: router.query({
     fetcher: api.getDepartment,

@@ -1,8 +1,22 @@
 export interface GetCurrentUserResponse {
-    _id:         string;
-    email:       string;
-    firstName:   string;
-    lastName:    string;
-    phoneNumber: string;
-    role:        string;
+  data: User;
 }
+
+export interface VerifyOTPResponse {
+  data: {
+    user: User;
+    accessToken: string;
+    refreshToken: string;
+  };
+}
+
+export interface User {
+  email: string;
+  fullName: string;
+  role: string;
+  createdAt: Date;
+  updatedAt: Date;
+  id: string;
+}
+
+export interface LoginResponse extends VerifyOTPResponse {}
