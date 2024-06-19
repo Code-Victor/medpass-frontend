@@ -17,19 +17,16 @@ export const Route = createLazyFileRoute(
 function Department() {
   const { departmentId } = Route.useParams();
   const navigate = Route.useNavigate();
-  const [search, setSearch] = React.useState("");
 
   const { data: user } = authRouter.me.useQuery();
   const hospitalId = user?.hospital;
-  const { data: departmentDetails, isLoading } =
-    departmentRouter.getDepartment.useQuery({
-      variables: {
-        hospitalId: hospitalId!,
-        departmentId,
-      },
-      enabled: !!hospitalId && !!departmentId,
-    });
-
+  const { data: departmentDetails } = departmentRouter.getDepartment.useQuery({
+    variables: {
+      hospitalId: hospitalId!,
+      departmentId,
+    },
+    enabled: !!hospitalId && !!departmentId,
+  });
 
   return (
     <main className="max-w-5xl mx-auto px-4">
@@ -116,12 +113,12 @@ function DoctorPane({
     </div>
   );
 }
-function DoctorItem(props:User) {
+function DoctorItem(props: User) {
   return (
     <div className="flex gap-2 items-center px-6 py-3">
       <img
         className="w-16 h-16 rounded-full"
-        src={"https://api.dicebear.com/9.x/micah/svg?seed="+props.fullName}
+        src={"https://api.dicebear.com/9.x/micah/svg?seed=" + props.fullName}
         alt="avatar"
       />
       <div className="grid gap-1">
@@ -155,6 +152,8 @@ const placeholderData = [
 ];
 
 function MedicalReports() {
+  const [search, setSearch] = React.useState("");
+
   return (
     <div className="bg-white rounded-xl grid gap-4">
       <div className="p-4 grid gap-2">
@@ -169,6 +168,8 @@ function MedicalReports() {
               <SearchNormal1 color="#292D32" size={20} />
             </Label>
             <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               id="patient-search"
               className="pl-10 py-4 bg-white"
               placeholder="Search Report ID"

@@ -58,33 +58,7 @@ function Doctor() {
   );
 }
 
-const placeholderData = [
-  {
-    email: "oluwaborihamzat@gmail.com",
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    email: "oluwaborihamzat@gmail.com",
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    email: "oluwaborihamzat@gmail.com",
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    email: "oluwaborihamzat@gmail.com",
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    email: "oluwaborihamzat@gmail.com",
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-];
+
 const doctorInvitationSchema = z.object({
   email: z.string().email("Invalid email address"),
 });
