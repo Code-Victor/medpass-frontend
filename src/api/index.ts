@@ -9,7 +9,6 @@ const api = axios.create({
   baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
-    "x-device-id": "admin",
   },
   withCredentials: true,
 });
@@ -45,10 +44,13 @@ export async function getCurrentUser() {
 export async function adminRegister(data: {
   email: string;
   password: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
+  phoneNumber: string;
 }) {
-  const response = await api.post<{message:string;}>("/auth/admin/register", data);
+  const response = await api.post<{ message: string }>(
+    "/auth/admin/register",
+    data
+  );
   return response.data;
 }
 
@@ -70,10 +72,10 @@ export async function verifyOTP(data: { email: string; otp: string }) {
 }
 
 export async function resendOTP(data: { email: string }) {
-  const response = await api.post("/auth/otp/resend", data.email);
+  const response = await api.post("/auth/otp/resend", data);
   return response.data;
 }
-
+  
 export async function login(data: { email: string; password: string }) {
   const response = await api.post("/auth/login", data);
   return response.data;
@@ -201,7 +203,8 @@ export async function createHospital(data: {
   name: string;
   address: string;
   phone: string;
-  cac_number: string;
+  cac_number: number;
+  website_url: string;
 }) {
   const response = await api.post("/hospital", data);
   return response.data;
