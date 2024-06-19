@@ -53,7 +53,7 @@ const signupFormSchema = z.object({
       message: "Website URL is invalid",
     }
   ),
-  cacNumber: z.number({ message: "CAC Number is required" }).min(14, {
+  cacNumber: z.string({ message: "CAC Number is required" }).min(14, {
     message: "CAC Number should be 14 characters long",
   }),
 });
@@ -74,8 +74,9 @@ function SignupForm() {
   const signupForm = useForm<SignupFormSchema>({
     resolver: zodResolver(signupFormSchema),
   });
+console.log(signupForm.formState.errors)
+  function onSignupFormSubmit(data: SignupFormSchema, ) {
 
-  function onSignupFormSubmit(data: SignupFormSchema) {
     console.log(data);
     createHospital({
       email: data.email,
@@ -115,7 +116,7 @@ function SignupForm() {
           />
           <FormField
             control={signupForm.control}
-            name="email"
+            name="phoneNumber"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Hospital phone number</FormLabel>
