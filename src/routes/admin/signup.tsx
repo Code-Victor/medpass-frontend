@@ -2,9 +2,7 @@ import { createFileRoute, lazyRouteComponent } from "@tanstack/react-router";
 import { z } from "zod";
 
 const signupSearchSchema = z.object({
-  step: z
-    .enum(["create-account", "confirm-otp", "update-info"])
-    .catch("create-account"),
+  step: z.enum(["create-account", "confirm-otp"]).catch("create-account"),
   email: z.string().optional(),
 });
 z;

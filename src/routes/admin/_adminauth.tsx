@@ -97,7 +97,7 @@ export default function Sidebar({ children }: { children: React.ReactNode }) {
   }
   return (
     <SidebarContext.Provider value={{ expanded }}>
-      <aside className="h-screen flex flex-col gap-6 border-r shadow-sm">
+      <aside className="h-screen sticky top-0 flex flex-col gap-6 border-r shadow-sm">
         <div className="p-4 pb-2 flex gap-2 items-center">
           <IconButton
             variant="ghost"
