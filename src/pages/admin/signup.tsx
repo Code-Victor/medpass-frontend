@@ -14,6 +14,9 @@ import {
 } from "@/components/ui/form";
 import { InputOTP, InputOTPSlot } from "@/components/ui/input-otp";
 import React from "react";
+import { phoneNumberSchema } from "@/lib/utils";
+import { authRouter } from "@/api/routers";
+import { toast } from "sonner";
 
 const routeApi = getRouteApi("/admin/signup");
 
@@ -36,16 +39,17 @@ const Signup = () => {
 
 const signupFormSchema = z
   .object({
-    name: z.string({ message: "Hospital name is required" }),
+    fullName: z.string({ message: "Your name is required" }),
     email: z
       .string({ message: "Email is required" })
       .email({ message: "Invalid email" }),
+    phoneNumber: phoneNumberSchema,
     password: z
       .string({ message: "Password is required" })
-      .min(6, { message: "Password must be at least 6 characters long" }),
+      .min(8, { message: "Password must be at least 8 characters long" }),
     confirmPassword: z
       .string({ message: "Confirm password is required" })
-      .min(6, { message: "Password must be at least 6 characters long" }),
+      .min(8, { message: "Password must be at least 8 characters long" }),
   })
   .refine((data) => data.confirmPassword === data.password, {
     message: "Passwords do not match",
@@ -55,52 +59,50 @@ const confirmOtpSchema = z.object({
     .string({ message: "OTP is required" })
     .min(6, { message: "OTP must be 6 characters long" }),
 });
-const updateInfoSchema = z.object({
-  address: z.string({ message: "Address is required" }),
-  websiteUrl: z.string({ message: "Website URL is required" }).refine(
-    (url) => {
-      try {
-        new URL(url);
-        return true;
-      } catch (error) {
-        return false;
-      }
-    },
-    {
-      message: "Website URL is invalid",
-    }
-  ),
-  cacNumber: z.number({ message: "CAC Number is required" }).min(14, {
-    message: "CAC Number should be 14 characters long",
-  }),
-});
+
 type SignupFormSchema = z.infer<typeof signupFormSchema>;
 type ConfirmOtpSchema = z.infer<typeof confirmOtpSchema>;
-type UpdateInfoSchema = z.infer<typeof updateInfoSchema>;
 
 function SignupForm() {
   const { step, email } = routeApi.useSearch();
   const navigate = routeApi.useNavigate();
   const [resendOtpCountdown, setResendOtpCountdown] = React.useState(60);
+  const { mutate: registerUser, isPending: isRegisterring } =
+    authRouter.adminRegister.useMutation({
+      onSuccess(data, variables) {
+        toast.success(data.message ?? "Account created successfully");
+        navigate({ search: { step: "confirm-otp", email: variables.email } });
+      },
+    });
+  const { mutate: verifyOtp, isPending: isVerifyingOtp } =
+    authRouter.verifyOTP.useMutation({
+      onSuccess(data) {
+        toast.success(data.message ?? "OTP verified successfully");
+        navigate({
+          to: "/admin/create-hospital",
+        });
+      },
+    });
+  const { mutate: resendOTP, isPending: isResendingOTP } =
+    authRouter.resendOTP.useMutation({
+      onSuccess(data) {
+        toast.success(data.message ?? "OTP verified successfully");
+      },
+    });
   const signupForm = useForm<SignupFormSchema>({
     resolver: zodResolver(signupFormSchema),
   });
   const confirmOtpForm = useForm<ConfirmOtpSchema>({
     resolver: zodResolver(confirmOtpSchema),
   });
-  const updateInfoForm = useForm<UpdateInfoSchema>({
-    resolver: zodResolver(updateInfoSchema),
-  });
+
   function onSignupFormSubmit(data: SignupFormSchema) {
-    console.log(data);
-    navigate({ search: { step: "confirm-otp", email: data.email } });
+    registerUser(data);
   }
   function onConfirmOtpFormSubmit(data: ConfirmOtpSchema) {
-    console.log(data);
-    navigate({ search: { step: "update-info" } });
-  }
-  function onUpdateInfoFormSubmit(data: UpdateInfoSchema) {
-    console.log(data);
+    if (email) {
+      verifyOtp({ ...data, email });
+    }
   }
 
   React.useEffect(() => {
@@ -120,7 +122,7 @@ function SignupForm() {
 
   if (step === "confirm-otp") {
     return (
-      <section className="flex flex-col gap-4 max-w-xl mx-auto">
+      <section className="flex flex-col gap-4 max-w-xl mx-auto" key="otp-form">
         <div className="space-y-2">
           <h1 className="font-bold text-2xl">Enter OTP</h1>
           <p className="text-gray-11">
@@ -153,7 +155,13 @@ function SignupForm() {
               <p className="">
                 Didn’t receive the code?{" "}
                 {resendOtpCountdown === 0 ? (
-                  <Button variant="ghost">resend code</Button>
+                  <Button
+                    variant="ghost"
+                    loading={isResendingOTP}
+                    onClick={() => (email ? resendOTP({ email }) : null)}
+                  >
+                    resend code
+                  </Button>
                 ) : (
                   <span className="">
                     <br /> You can request a new OTP in {resendOtpCountdown}{" "}
@@ -163,84 +171,18 @@ function SignupForm() {
               </p>
             </div>
             <div className="flex justify-end">
-              <Button type="submit">Submit</Button>
+              <Button type="submit" loading={isVerifyingOtp}>
+                Submit
+              </Button>
             </div>
           </form>
         </Form>
       </section>
     );
   }
-  if (step === "update-info") {
-    return (
-      <section className="flex flex-col gap-4 max-w-xl mx-auto">
-        <div className="space-y-2">
-          <h1 className="font-bold text-2xl">Update Hospital info</h1>
-          <p className="text-gray-11">Fill in your hospital information</p>
-        </div>
-        <Form {...updateInfoForm}>
-          <form
-            onSubmit={updateInfoForm.handleSubmit(onUpdateInfoFormSubmit)}
-            className="space-y-4"
-          >
-            <FormField
-              control={updateInfoForm.control}
-              name="address"
-              key="update-info-form-address"
-              render={({ field }) => (
-                <FormItem >
-                  <FormLabel>Hospital address</FormLabel>
-                  <FormControl>
-                    <Input placeholder="yaba Lagos" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={updateInfoForm.control}
-              name="websiteUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Website URL</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="https://example.com"
-                      type="url"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={updateInfoForm.control}
-              name="cacNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>CAC number</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="1234567...."
-                      type="password"
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
 
-            <div className="flex justify-end">
-              <Button type="submit">Submit</Button>
-            </div>
-          </form>
-        </Form>
-      </section>
-    );
-  }
   return (
-    <section className="flex flex-col gap-4 max-w-xl mx-auto">
+    <section className="flex flex-col gap-4 max-w-xl mx-auto" key="signupform">
       <div className="space-y-2">
         <h1 className="font-bold text-2xl">Welcome to MedPass!</h1>
         <p className="text-gray-11">Register your hospital account</p>
@@ -252,10 +194,10 @@ function SignupForm() {
         >
           <FormField
             control={signupForm.control}
-            name="name"
+            name="fullName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hospital Name</FormLabel>
+                <FormLabel>Your Name</FormLabel>
                 <FormControl>
                   <Input placeholder="federal medical center" {...field} />
                 </FormControl>
@@ -268,13 +210,26 @@ function SignupForm() {
             name="email"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hospital Email</FormLabel>
+                <FormLabel>Your Email</FormLabel>
                 <FormControl>
                   <Input
                     placeholder="example@email.com"
                     type="email"
                     {...field}
                   />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={signupForm.control}
+            name="phoneNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Your Phone number</FormLabel>
+                <FormControl>
+                  <Input placeholder="+234 000 111 222" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -307,7 +262,9 @@ function SignupForm() {
             )}
           />
           <div className="flex justify-end">
-            <Button type="submit">Submit</Button>
+            <Button loading={isRegisterring} type="submit">
+              Submit
+            </Button>
           </div>
         </form>
       </Form>
