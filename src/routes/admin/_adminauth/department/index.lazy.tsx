@@ -8,7 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import {
   Form,
   FormControl,
@@ -22,10 +22,12 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import { departmentRouter } from "@/api/routers";
+import { authRouter, departmentRouter } from "@/api/routers";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import React from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Department } from "@/api/types";
 
 const addDepartmentSchema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
@@ -36,15 +38,23 @@ const addDepartmentSchema = z.object({
 });
 type AddDepartmentSchema = z.infer<typeof addDepartmentSchema>;
 export const Route = createLazyFileRoute("/admin/_adminauth/department/")({
-  component: Department,
+  component: DepartmentPage,
 });
 
-function Department() {
+function DepartmentPage() {
   const addDepartmentForm = useForm<AddDepartmentSchema>({
     resolver: zodResolver(addDepartmentSchema),
   });
+  const { data: user } = authRouter.me.useQuery();
   const [open, setOpen] = React.useState(false);
   const queryClient = useQueryClient();
+  const { data: departments, isLoading: isLoadingDepartments } =
+    departmentRouter.getAllDepartments.useQuery({
+      enabled: !!user,
+      variables: {
+        hospitalId: user!.hospital,
+      },
+    });
   const { mutate: createDepartment, isPending: isCreating } =
     departmentRouter.createDepartment.useMutation({
       onSuccess: () => {
@@ -52,13 +62,14 @@ function Department() {
         setOpen(false);
         queryClient.invalidateQueries(
           departmentRouter.getAllDepartments.getFetchOptions({
-            hospitalId: "dkdkd",
+            hospitalId: user!.hospital,
           })
         );
       },
     });
   const onSubmit = (data: AddDepartmentSchema) => {
-    createDepartment({ hospitalId: "dkdkd", ...data });
+    if (!user) return;
+    createDepartment({ hospitalId: user.hospital, ...data });
   };
   return (
     <main className="max-w-5xl mx-auto px-4">
@@ -149,13 +160,13 @@ function Department() {
                     </FormItem>
                   )}
                 />
+                <DialogFooter>
+                  <Button type="submit" loading={isCreating}>
+                    Save changes
+                  </Button>
+                </DialogFooter>
               </form>
             </Form>
-            <DialogFooter>
-              <Button type="submit" loading={isCreating}>
-                Save changes
-              </Button>
-            </DialogFooter>
           </DialogContent>
         </Dialog>
       </div>
@@ -164,12 +175,20 @@ function Department() {
         {false && <EmptyDepartmentList />}
         {/* if not empty */}
         <div className="grid md:grid-cols-2 gap-4 md:gap-6">
-          <DepartmentCard />
-          <DepartmentCard />
-          <DepartmentCard />
-          <DepartmentCard />
-          <DepartmentCard />
-          <DepartmentCard />
+          {isLoadingDepartments ? (
+            <>
+              <Skeleton className="h-[112px] rouned-2xl" />
+              <Skeleton className="h-[112px] rouned-2xl" />
+              <Skeleton className="h-[112px] rouned-2xl" />
+              <Skeleton className="h-[112px] rouned-2xl" />
+              <Skeleton className="h-[112px] rouned-2xl" />
+              <Skeleton className="h-[112px] rouned-2xl" />
+            </>
+          ) : (
+            departments?.data.map((d) => {
+              return <DepartmentCard key={d.id} {...d} />;
+            })
+          )}
         </div>
       </div>
     </main>
@@ -183,16 +202,28 @@ function EmptyDepartmentList() {
   );
 }
 
-function DepartmentCard() {
+interface DeparmentCardProps extends Department {}
+function DepartmentCard(props: DeparmentCardProps) {
   return (
     <div className="bg-white px-8 py-6 shadow-sm rounded-2xl flex items-center">
       <div className="flex-1 space-y-3">
-        <h2 className="font-medim text-2xl text-black">Medics department</h2>
-        <p className="text-sm text-gray-11">
-          Led by <span className="font-semibold">Dr. Aiyesorogbe W. Talai</span>
+        <h2 className="font-medim text-2xl text-black">
+          {props.departmentName}
+        </h2>
+        <p className="text-sm text-gray-11 text-">
+          {
+            props.description
+          }
         </p>
       </div>
-      <Button variant="outline">Manage</Button>
+      <Link
+        to="/admin/department/$departmentId"
+        params={{
+          departmentId: props.id,
+        }}
+      >
+        <Button variant="outline">Manage</Button>
+      </Link>
     </div>
   );
 }

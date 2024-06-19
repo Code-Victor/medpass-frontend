@@ -4,6 +4,9 @@ import {
   GetCurrentUserResponse,
   LoginResponse,
   VerifyOTPResponse,
+  GetDepartmentsResponse,
+  GetDepartmentResponse,
+  GetDoctorsResponse,
 } from "./types";
 
 //   "email": "victor.hamzat@kibo.school",
@@ -84,17 +87,37 @@ export async function login(data: { email: string; password: string }) {
   const response = await api.post<LoginResponse>("/auth/login", data);
   return response.data;
 }
+export async function inviteSignup({
+  token,
+  ...data
+}: {
+  fullName: string;
+  password: string;
+  token: string;
+}) {
+  const response = await api.post<LoginResponse>(
+    "/auth/signup?token=" + token,
+    data
+  );
+  return response.data;
+}
 
 // =================================
 // API ENDPOINTS FOR PATIENTS
 // =================================
-
-export async function createPatient(data: {
+export interface createPatientData {
   email: string;
-  firstName: string;
-  lastName: string;
+  fullName: string;
   phoneNumber: string;
-}) {
+  state: string;
+  homeAddress: string;
+  gender: string;
+  maritalStatus: string;
+  genotype: string;
+  bloodGroup: string;
+}
+
+export async function createPatient(data: createPatientData) {
   const response = await api.post("/patient", data);
   return response.data;
 }
@@ -157,7 +180,7 @@ export async function updatePatientRecord({
 }
 
 export async function searchPatient({ query }: { query: string }) {
-  const response = await api.get(`/patient/search?query=${query}`);
+  const response = await api.get(`/patient/search?patientId=${query}`);
   return response.data;
 }
 
@@ -251,7 +274,9 @@ export async function createDepartment({
 }
 
 export async function getDepartments({ hospitalId }: { hospitalId: string }) {
-  const response = await api.get(`/hospital/${hospitalId}/department`);
+  const response = await api.get<GetDepartmentsResponse>(
+    `/hospital/${hospitalId}/department`
+  );
   return response.data;
 }
 
@@ -262,7 +287,7 @@ export async function getDepartment({
   hospitalId: string;
   departmentId: string;
 }) {
-  const response = await api.get(
+  const response = await api.get<GetDepartmentResponse>(
     `/hospital/${hospitalId}/department/${departmentId}`
   );
   return response.data;
@@ -296,6 +321,34 @@ export async function deleteDepartment({
 }) {
   const response = await api.delete(
     `/hospital/${hospitalId}/department/${departmentId}`
+  );
+  return response.data;
+}
+
+export async function getDepartmentDoctors({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
+  const response = await api.get<GetDoctorsResponse>(
+    `/hospital/${hospitalId}/department/doctor/${departmentId}/`
+  );
+  return response.data.data;
+}
+
+export async function inviteDoctor({
+  hospitalId,
+  ...data
+}: {
+  hospitalId: string;
+  departmentId: string;
+  email: string;
+}) {
+  const response = await api.post(
+    `/hospital/${hospitalId}/department/doctor/`,
+    data
   );
   return response.data;
 }

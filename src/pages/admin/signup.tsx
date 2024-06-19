@@ -1,4 +1,4 @@
-import { getRouteApi } from "@tanstack/react-router";
+import { getRouteApi, Link } from "@tanstack/react-router";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -29,7 +29,11 @@ const Signup = () => {
         <header className="flex justify-end py-2 px-6">
           <p className="text-right">
             Already have an account?{" "}
-            <span className="text-blue-10">SIGN IN</span>
+            <Link to="/admin/login">
+              <Button variant="link" className="text-blue-10">
+                SIGN IN
+              </Button>
+            </Link>
           </p>
         </header>
         <SignupForm />
@@ -79,7 +83,6 @@ function SignupForm() {
   const { mutate: verifyOtp, isPending: isVerifyingOtp } =
     authRouter.verifyOTP.useMutation({
       onSuccess(data) {
-        
         setToken(data.data.accessToken);
         toast.success("OTP verified successfully");
         navigate({

@@ -1,18 +1,36 @@
+import { authRouter, departmentRouter } from "@/api/routers";
+import { User } from "@/api/types";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import { Back, SearchNormal1 } from "iconsax-react";
+import React from "react";
 
 export const Route = createLazyFileRoute(
-  "/admin/_adminauth/department/$departmentName"
+  "/admin/_adminauth/department/$departmentId/"
 )({
   component: Department,
 });
 
 function Department() {
-  const { departmentName } = Route.useParams();
+  const { departmentId } = Route.useParams();
   const navigate = Route.useNavigate();
+  const [search, setSearch] = React.useState("");
+
+  const { data: user } = authRouter.me.useQuery();
+  const hospitalId = user?.hospital;
+  const { data: departmentDetails, isLoading } =
+    departmentRouter.getDepartment.useQuery({
+      variables: {
+        hospitalId: hospitalId!,
+        departmentId,
+      },
+      enabled: !!hospitalId && !!departmentId,
+    });
+
+
   return (
     <main className="max-w-5xl mx-auto px-4">
       <Button
@@ -30,14 +48,23 @@ function Department() {
       </Button>
       <section>
         <div className="grid gap-4">
-          <h1 className="font-semibold text-2xl capitalize">
-            {departmentName}
-          </h1>
+          {departmentDetails ? (
+            <h1 className="font-semibold text-2xl capitalize">
+              {departmentDetails.departmentName}
+            </h1>
+          ) : (
+            <Skeleton className="h-8 w-52 rounded-lg" />
+          )}
           <div className="grid gap-4 grid-cols-3">
             <div className="col-span-2">
               <MedicalReports />
             </div>
-            <DoctorPane />
+            <DoctorPane
+              {...{
+                hospitalId: hospitalId!,
+                departmentId,
+              }}
+            />
           </div>
         </div>
       </section>
@@ -45,30 +72,61 @@ function Department() {
   );
 }
 
-function DoctorPane() {
+function DoctorPane({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
+  const { data: doctors, isLoading } = departmentRouter.getDoctors.useQuery({
+    variables: {
+      hospitalId,
+      departmentId,
+    },
+  });
+  if (isLoading) {
+    return <Skeleton className="rouned-xl"></Skeleton>;
+  }
   return (
     <div className="bg-white rounded-xl flex flex-col overflow-clip divide-y divide-gray-6">
       <h2 className="font-semibold text-xl px-6 py-4">Doctors</h2>
       <div className="flex-1 divide-y">
-        <DoctorItem />
-        <DoctorItem />
-        <DoctorItem />
+        {doctors?.length === 0 && (
+          <div className="flex justify-center items-center h-32">
+            <p className="text-gray-9">No doctors available</p>
+          </div>
+        )}
+        {doctors?.map((doc) => <DoctorItem {...doc.user} />)}
       </div>
-      <Button className="bg-[#D5E1FF] hover:bg-[#D5E1FF]/90 w-full" size="lg" variant="secondary">View all</Button>
+      <Link
+        to="/admin/department/$departmentId/doctor"
+        params={{
+          departmentId,
+        }}
+      >
+        <Button
+          className="bg-[#D5E1FF] hover:bg-[#D5E1FF]/90 w-full"
+          size="lg"
+          variant="secondary"
+        >
+          View all
+        </Button>
+      </Link>
     </div>
   );
 }
-function DoctorItem() {
+function DoctorItem(props:User) {
   return (
     <div className="flex gap-2 items-center px-6 py-3">
       <img
         className="w-16 h-16 rounded-full"
-        src="https://api.dicebear.com/9.x/micah/svg"
+        src={"https://api.dicebear.com/9.x/micah/svg?seed="+props.fullName}
         alt="avatar"
       />
       <div className="grid gap-1">
-        <p className="font-semibold">Daniel Alao</p>
-        <p className="text-gray-9 text-xs">Aiyesorogbewalai@gmail.com</p>
+        <p className="font-semibold">{props.fullName}</p>
+        <p className="text-gray-9 text-xs">{props.email}</p>
       </div>
     </div>
   );
@@ -100,9 +158,9 @@ function MedicalReports() {
   return (
     <div className="bg-white rounded-xl grid gap-4">
       <div className="p-4 grid gap-2">
-        <h2 className="font-semibold text-2xl md:text-3xl">Medical Reports</h2>
+        <h2 className="font-semibold text-lg md:text-xl">Medical Reports</h2>
         <div className="flex justify-between">
-          <div className="relative">
+          <div className="relative min-w-[320px]">
             <Label
               htmlFor="patient-search"
               className="w-10 grid place-items-center absolute left-0 top-0 bottom-0"

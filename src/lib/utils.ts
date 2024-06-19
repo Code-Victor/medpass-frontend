@@ -44,3 +44,7 @@ export const phoneNumberSchema = z
       message: "Phone number must have a total length of 13 or 11 digits.",
     }
   );
+
+  export async function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }

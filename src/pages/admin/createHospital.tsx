@@ -67,7 +67,10 @@ function SignupForm() {
       onSuccess() {
         toast.success("Hospital created successfully");
         navigate({
-          to: "/admin",
+          to: "/admin/verify-kyc",
+          search: {
+            role: "admin",
+          },
         });
       },
     });

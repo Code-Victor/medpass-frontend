@@ -20,34 +20,37 @@ export const authRouter = router("auth", {
   login: router.mutation({
     mutationFn: api.login,
   }),
+  inviteSignup: router.mutation({
+    mutationFn: api.inviteSignup,
+  }),
 });
 
 export const patientRouter = router("patient", {
-  createPatient: router.mutation({
+  create: router.mutation({
     mutationFn: api.createPatient,
   }),
-  forwardPatientRecord: router.mutation({
+  forwardRecord: router.mutation({
     mutationFn: api.forwardPatientRecord,
   }),
-  getAllPatientRecords: router.query({
+  getAllRecords: router.query({
     fetcher: api.getPatientRecords,
   }),
-  getPatientRecord: router.query({
+  getRecord: router.query({
     fetcher: api.getPatientRecord,
   }),
-  addPatientRecord: router.mutation({
+  addRecord: router.mutation({
     mutationFn: api.addPatientRecord,
   }),
-  updatePatientRecord: router.mutation({
+  updateRecord: router.mutation({
     mutationFn: api.updatePatientRecord,
   }),
   search: router.query({
     fetcher: api.searchPatient,
   }),
-  getPatient: router.query({
+  get: router.query({
     fetcher: api.getPatient,
   }),
-  updatePatientBioData: router.mutation({
+  updateBioData: router.mutation({
     mutationFn: api.updatePatientBioData,
   }),
 });
@@ -89,5 +92,11 @@ export const departmentRouter = router("department", {
   }),
   deleteDepartment: router.mutation({
     mutationFn: api.deleteDepartment,
+  }),
+  getDoctors: router.query({
+    fetcher: api.getDepartmentDoctors,
+  }),
+  inviteDoctor: router.mutation({
+    mutationFn: api.inviteDoctor,
   }),
 });

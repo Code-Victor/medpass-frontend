@@ -20,12 +20,21 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { phoneNumberSchema } from "@/lib/utils";
 import React from "react";
 import { patientRouter } from "@/api/routers";
+import { toast } from "sonner";
 export const Route = createLazyFileRoute("/admin/_adminauth/patient-records/")({
   component: PatientRecords,
 });
@@ -34,7 +43,7 @@ function PatientRecords() {
   const [search, setSearch] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const { data } = patientRouter.search.useQuery({
-    enabled: search.length > 3,
+    enabled: search.length > 2,
     variables: {
       query: search,
     },
@@ -71,7 +80,7 @@ function PatientRecords() {
             <Button>Register Patient</Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[580px]">
-            <RegisterPatientForm />
+            <RegisterPatientForm close={() => setOpen(false)} />
           </DialogContent>
         </Dialog>
       </div>
@@ -88,15 +97,225 @@ const registerUserSchema = z.object({
 });
 type RegisterUserSchema = z.infer<typeof registerUserSchema>;
 
-function RegisterPatientForm() {
+// Genotype
+const GENOTYPES = ["AA", "AS", "AC", "SS", "SC", "CC"] as const;
+
+// Blood Group
+const BLOOD_GROUPS = ["A", "B", "AB", "O"] as const;
+
+// Rhesus Factor
+const RHESUS_FACTORS = ["+", "-"] as const;
+
+// Gender
+const GENDERS = ["Male", "Female", "Other"] as const;
+
+// Marital Status
+const MARITAL_STATUSES = ["Single", "Married", "Divorced", "Widowed"] as const;
+
+const completeRegistrationSchema = z.object({
+  genotype: z.enum(GENOTYPES),
+  bloodGroup: z.enum(BLOOD_GROUPS),
+  rhesusFactor: z.enum(RHESUS_FACTORS),
+  gender: z.enum(GENDERS),
+  maritalStatus: z.enum(MARITAL_STATUSES),
+});
+type CompleteRegistrationSchema = z.infer<typeof completeRegistrationSchema>;
+function RegisterPatientForm(props: { close: () => void }) {
+  const [index, setIndex] = React.useState(0);
+  const { mutate, isPending } = patientRouter.create.useMutation({
+    onSuccess() {
+      toast.success("Patient registration successful");
+      props.close();
+    },
+  });
   const userRegistrationForm = useForm<RegisterUserSchema>({
     resolver: zodResolver(registerUserSchema),
   });
-  const registerUser = (data: RegisterUserSchema) => {
+  const completeRegistrationForm = useForm<CompleteRegistrationSchema>({
+    resolver: zodResolver(completeRegistrationSchema),
+  });
+  const onRegisterFormSubmit = (data: RegisterUserSchema) => {
     console.log(data);
+    setIndex(1);
   };
+  const onCompleteRegistration = (data: CompleteRegistrationSchema) => {
+    const { stateOfResidence, ...registrationData } =
+      userRegistrationForm.getValues();
+    mutate({
+      genotype: data.genotype,
+      gender: data.gender,
+      maritalStatus: data.maritalStatus,
+      bloodGroup: data.bloodGroup + data.rhesusFactor,
+      state: stateOfResidence,
+      ...registrationData,
+    });
+  };
+  if (index === 1) {
+    return (
+      <React.Fragment key="patient-registration">
+        <DialogHeader>
+          <DialogTitle>Complete Patient Registration</DialogTitle>
+          <DialogDescription>
+            Please provide the following details to complete the patient
+            registration. Ensure all information is accurate and up-to-date.
+          </DialogDescription>
+        </DialogHeader>
+        <Form {...completeRegistrationForm}>
+          <form
+            className="grid gap-4 py-4"
+            onSubmit={completeRegistrationForm.handleSubmit(
+              onCompleteRegistration
+            )}
+          >
+            <FormField
+              control={completeRegistrationForm.control}
+              name="genotype"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Genotype</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select genotype" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {GENOTYPES.map((g) => (
+                          <SelectItem key={g} value={g}>
+                            {g}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <FormField
+                control={completeRegistrationForm.control}
+                name="bloodGroup"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Blood Group</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select blood group" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {BLOOD_GROUPS.map((g) => (
+                            <SelectItem key={g} value={g}>
+                              {g}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={completeRegistrationForm.control}
+                name="rhesusFactor"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Rhesus factor</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select rhesus factor" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {RHESUS_FACTORS.map((g) => (
+                            <SelectItem key={g} value={g}>
+                              {g}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={completeRegistrationForm.control}
+                name="gender"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel> Gender</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select gender" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {GENDERS.map((g) => (
+                            <SelectItem key={g} value={g}>
+                              {g}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={completeRegistrationForm.control}
+                name="maritalStatus"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Marital status</FormLabel>
+                    <FormControl>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select marital status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {MARITAL_STATUSES.map((g) => (
+                            <SelectItem key={g} value={g}>
+                              {g}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button loading={isPending} type="submit">
+                Save changes
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </React.Fragment>
+    );
+  }
   return (
-    <>
+    <React.Fragment key="register-new">
       <DialogHeader>
         <DialogTitle>Register New Patient</DialogTitle>
         <DialogDescription>
@@ -107,7 +326,7 @@ function RegisterPatientForm() {
       <Form {...userRegistrationForm}>
         <form
           className="grid gap-4 py-4"
-          onSubmit={userRegistrationForm.handleSubmit(registerUser)}
+          onSubmit={userRegistrationForm.handleSubmit(onRegisterFormSubmit)}
         >
           <FormField
             control={userRegistrationForm.control}
@@ -176,12 +395,12 @@ function RegisterPatientForm() {
               )}
             />
           </div>
+          <DialogFooter>
+            <Button type="submit">Proceed</Button>
+          </DialogFooter>
         </form>
       </Form>
-      <DialogFooter>
-        <Button type="submit">Save changes</Button>
-      </DialogFooter>
-    </>
+    </React.Fragment>
   );
 }
 
