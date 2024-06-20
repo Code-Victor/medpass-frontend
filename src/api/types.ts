@@ -17,7 +17,7 @@ export interface VerifyOTPResponse {
 export interface User {
   email: string;
   fullName: string;
-  role: string;
+  role: "admin"|"doctor";
   createdAt: Date;
   updatedAt: Date;
   id: string;
@@ -78,9 +78,12 @@ export interface Doctor {
 export interface GetDepartmentRecords{
   data: HospitalRecord[];
 }
+export interface GetPatientResponse{
+  data: Patient;
+}
 export interface HospitalRecord {
   _id: string;
-  patient: unknown;
+  patient: Patient;
   doctor: Doctor;
   hospital: Hospital;
   department: Department;
@@ -91,3 +94,21 @@ export interface HospitalRecord {
   prescription: string[];
   treatment: string[];
 }
+
+export interface Patient {
+  _id:         string;
+  user:        User;
+  patientId:   string;
+  dateOfBirth: Date;
+  homeAddress: string;
+  state:       string;
+  biodata:     Biodata;
+}
+
+export interface Biodata {
+  genotype:      string;
+  bloodGroup:    string;
+  gender:        string;
+  maritalStatus: string;
+}
+

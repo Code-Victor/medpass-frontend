@@ -3,6 +3,8 @@ import { createLazyFileRoute } from "@tanstack/react-router";
 import { Back } from "iconsax-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { PatientInfoCard } from "@/components/inc";
+import { authRouter, patientRouter } from "@/api/routers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createLazyFileRoute(
   "/admin/_adminauth/patient-records/$patientId"
@@ -12,6 +14,14 @@ export const Route = createLazyFileRoute(
 
 function PatientDetails() {
   const navigate = Route.useNavigate();
+  const { patientId } = Route.useParams();
+  const { data: user } = authRouter.me.useQuery();
+  const { data: patient } = patientRouter.get.useQuery({
+    variables: {
+      patientId,
+    },
+  });
+  console.log();
   return (
     <main className="max-w-5xl mx-auto px-4">
       <Button
@@ -32,21 +42,24 @@ function PatientDetails() {
           <h1 className="font-semibold text-2xl">Patients Details</h1>
           <div className="flex gap-2">
             <Button variant="outline">Record Patient Visit</Button>
-            <Button>Admit Patient</Button>
+            {user?.user.role === "doctor" && <Button>Admit Patient</Button>}
           </div>
         </div>
         <div className="mt-4">
-          <PatientInfoCard />
+          {patient ? (
+            <PatientInfoCard {...patient} />
+          ) : (
+            <Skeleton className="w-full h-36" />
+          )}
         </div>
-        <PatientRecords />
+        <PatientRecords id={patientId} />
       </section>
     </main>
   );
 }
 
-
-
-function PatientRecords() {
+function PatientRecords({ id }: { id: string }) {
+  console.log(id)
   return (
     <div className="bg-white rounded-xl mt-6 p-4">
       <Tabs defaultValue="all-records">

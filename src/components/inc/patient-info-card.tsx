@@ -1,6 +1,11 @@
+import { Patient } from "@/api/types";
 import { cn } from "@/lib/utils";
 
-export function PatientInfoCard({ size = "lg" }: { size?: "lg" | "sm" }) {
+export interface PatientInfoCardProps extends Patient {
+  size?: "lg" | "sm";
+}
+
+export function PatientInfoCard({ size = "lg" }: PatientInfoCardProps) {
   return (
     <div
       className={cn(

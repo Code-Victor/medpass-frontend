@@ -20,7 +20,9 @@ interface MyRouterContext {
 export const Route = createRootRouteWithContext<MyRouterContext>()({
   component: () => (
     <>
-      <Outlet />
+      <div className="font-inter">
+        <Outlet />
+      </div>
       <React.Suspense>
         <TanStackRouterDevtools />
       </React.Suspense>

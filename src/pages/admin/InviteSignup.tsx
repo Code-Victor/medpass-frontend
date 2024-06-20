@@ -103,7 +103,7 @@ function SignupForm() {
               <FormItem>
                 <FormLabel>Your Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="federal medical center" {...field} />
+                  <Input placeholder="john doe" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

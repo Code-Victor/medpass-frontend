@@ -10,6 +10,8 @@ import {
   ClipboardText,
 } from "iconsax-react";
 import { PatientInfoCard } from "@/components/inc";
+import { patientRouter } from "@/api/routers";
+import { Skeleton } from "@/components/ui/skeleton";
 
 export const Route = createLazyFileRoute(
   "/admin/_adminauth/patient-records/records/$patientId"
@@ -18,6 +20,12 @@ export const Route = createLazyFileRoute(
 });
 
 function Records() {
+  const { patientId } = Route.useParams();
+  const { data: patient } = patientRouter.get.useQuery({
+    variables: {
+      patientId,
+    },
+  });
   return (
     <main className="max-w-5xl mx-auto px-4 pb-6">
       <Button variant="ghost" className="text-gray-9 hover:text-gray-11  gap-2">
@@ -34,7 +42,11 @@ function Records() {
         </div>
         <div className="grid grid-cols-4 gap-6 mt-4">
           <div className="col-span-3">
-            <PatientInfoCard size="sm" />
+            {patient ? (
+              <PatientInfoCard {...patient} size="sm" />
+            ) : (
+              <Skeleton className="w-full h-36" />
+            )}
           </div>
           <ReferenceDetails />
         </div>

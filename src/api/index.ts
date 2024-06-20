@@ -8,6 +8,7 @@ import {
   GetDepartmentResponse,
   GetDoctorsResponse,
   GetDepartmentRecords,
+  GetPatientResponse,
 } from "./types";
 
 //   "email": "victor.hamzat@kibo.school",
@@ -186,8 +187,8 @@ export async function searchPatient({ query }: { query: string }) {
 }
 
 export async function getPatient({ patientId }: { patientId: string }) {
-  const response = await api.get(`/patient/${patientId}`);
-  return response.data;
+  const response = await api.get<GetPatientResponse>(`/patient/${patientId}`);
+  return response.data.data;
 }
 export async function updatePatientBioData({
   patientId,

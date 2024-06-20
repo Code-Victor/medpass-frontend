@@ -28,6 +28,7 @@ import { toast } from "sonner";
 import React from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Department } from "@/api/types";
+import { cn } from "@/lib/utils";
 
 const addDepartmentSchema = z.object({
   departmentName: z.string().min(1, "Department name is required"),
@@ -186,7 +187,10 @@ function DepartmentPage() {
             </>
           ) : (
             departments?.data.map((d) => {
-              return <DepartmentCard key={d.id} {...d} />;
+              const isDisabled =
+                user?.user.role === "doctor" && d.id !== user.department;
+                // console.log({role:user?.user.role,id1:d.id,id2:user?.department})
+              return <DepartmentCard key={d.id} disabled={isDisabled} {...d} />;
             })
           )}
         </div>
@@ -202,22 +206,26 @@ function EmptyDepartmentList() {
   );
 }
 
-interface DeparmentCardProps extends Department {}
+interface DeparmentCardProps extends Department {
+  disabled?: boolean;
+}
 function DepartmentCard(props: DeparmentCardProps) {
   return (
-    <div className="bg-white px-8 py-6 shadow-sm rounded-2xl flex items-center">
+    <div
+      className={cn(
+        "bg-white px-8 py-6 shadow-sm rounded-2xl flex items-center",
+        props.disabled ? "opacity-70" : ""
+      )}
+    >
       <div className="flex-1 space-y-3">
         <h2 className="font-medim text-2xl text-black">
           {props.departmentName}
         </h2>
-        <p className="text-sm text-gray-11 text-">
-          {
-            props.description
-          }
-        </p>
+        <p className="text-sm text-gray-11 text-">{props.description}</p>
       </div>
       <Link
         to="/admin/department/$departmentId"
+        disabled={props.disabled}
         params={{
           departmentId: props.id,
         }}
