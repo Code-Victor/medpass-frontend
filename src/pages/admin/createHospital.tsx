@@ -15,11 +15,14 @@ import {
 import { hospitalRouter } from "@/api/routers";
 import { toast } from "sonner";
 import { phoneNumberSchema } from "@/lib/utils";
+import AuthImage from "@/assets/auth.svg";
 
 const Signup = () => {
   return (
     <div className="grid md:grid-cols-3 min-h-screen">
-      <div className="bg-blue-3"></div>
+      <div className="bg-blue-3 grid place-items-center">
+        <img src={AuthImage} alt="auth" className="w-full" />
+      </div>
       <div className="md:col-span-2 ">
         <header className="flex justify-end py-2 px-6">
           <p className="text-right">
@@ -77,9 +80,8 @@ function SignupForm() {
   const signupForm = useForm<SignupFormSchema>({
     resolver: zodResolver(signupFormSchema),
   });
-console.log(signupForm.formState.errors)
-  function onSignupFormSubmit(data: SignupFormSchema, ) {
-
+  console.log(signupForm.formState.errors);
+  function onSignupFormSubmit(data: SignupFormSchema) {
     console.log(data);
     createHospital({
       email: data.email,
