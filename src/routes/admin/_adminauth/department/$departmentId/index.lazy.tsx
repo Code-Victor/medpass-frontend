@@ -90,7 +90,7 @@ function DoctorPane({
       <h2 className="font-semibold text-xl px-6 py-4">Doctors</h2>
       <div className="flex-1 divide-y">
         {doctors?.length === 0 && (
-          <div className="flex justify-center items-center h-32">
+          <div className="flex justify-center items-center h-32">   
             <p className="text-gray-9">No doctors available</p>
           </div>
         )}
@@ -128,32 +128,21 @@ function DoctorItem(props: User) {
     </div>
   );
 }
-const placeholderData = [
-  {
-    reference: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    reference: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    reference: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    reference: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-  {
-    reference: "Victor Hamzat",
-    id: "HOSP-001",
-  },
-];
 
-function MedicalReports() {
+function MedicalReports({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
   const [search, setSearch] = React.useState("");
-
+  const { data: records } = departmentRouter.getRecords.useQuery({
+    variables: {
+      hospitalId,
+      departmentId,
+    },
+  });
   return (
     <div className="bg-white rounded-xl grid gap-4">
       <div className="p-4 grid gap-2">
@@ -187,11 +176,18 @@ function MedicalReports() {
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-6">
-          {placeholderData.map((patient, index) => (
-            <tr key={`${patient.id}-${index}`}>
+          {records?.length === 0 && (
+            <tr>
+              <td colSpan={4} className="text-center py-4 text-gray-9">
+                No records available
+              </td>
+            </tr>
+          )}
+          {records?.map((record, index) => (
+            <tr key={`${record._id}-${index}`}>
               <td className="px-5 py-4">{index + 1}</td>
-              <td>{patient.id}</td>
-              <td>{patient.reference}</td>
+              <td>{record._id}</td>
+              <td>{record.doctor.user.fullName}</td>
               <td>
                 <Button variant="ghost">Action</Button>
               </td>

@@ -1,6 +1,8 @@
+import { authRouter, departmentRouter } from "@/api/routers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { People, SearchNormal1 } from "iconsax-react";
 // For authentication: https://tanstack.com/router/latest/docs/framework/react/guide/authenticated-routes
@@ -9,30 +11,55 @@ export const Route = createLazyFileRoute("/admin/_adminauth/")({
 });
 
 function Dashboard() {
+  const { data: user } = authRouter.me.useQuery();
   return (
     <main className="max-w-5xl mx-auto px-4">
       <div className="flex flex-col gap-1">
-        <h1 className="text-2xl font-semibold">Welcome back, Victor!</h1>
+        <h1 className="text-2xl font-semibold">
+          Welcome back, {user?.user.fullName}!
+        </h1>
         <p className="text-gray-10">
           Manage your hospital and remember to wash your hands
         </p>
       </div>
-      <div className="grid grid-cols-3 gap-6 mt-4">
-        <DashCard title="Total Patients" metric={4560} rise={15} />
-        <DashCard title="Admitted Patients" metric={3905} rise={15} />
-        <DashCard title="Consulting Patients" metric={665} rise={15} />
-      </div>
+      <DashInsight />
       <PatientsTable />
     </main>
+  );
+}
+
+function DashInsight() {
+  const { data: user } = authRouter.me.useQuery();
+  const { data, isLoading } = departmentRouter.getDashboardInfo.useQuery({
+    variables: {
+      hospitalId: user?.hospital ?? "",
+      departmentId: user?.department ?? "",
+    },
+  });
+  console.log({ data });
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-3 gap-6 mt-4">
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-32 rounded-lg" />
+        <Skeleton className="h-32 rounded-lg" />
+      </div>
+    );
+  }
+  return (
+    <div className="grid grid-cols-3 gap-6 mt-4">
+      <DashCard title="Doctor's Count" metric={data?.recordCount} />
+      <DashCard title="Record Count" metric={data?.recordCount} />
+      <DashCard title="Admission Count" metric={data?.admissionCount} />
+    </div>
   );
 }
 
 interface DashCardProps {
   title: string;
   metric: number;
-  rise: number;
 }
-function DashCard({ title, metric, rise }: DashCardProps) {
+function DashCard({ title, metric }: DashCardProps) {
   return (
     <div className="bg-white rounded-lg p-2 md:p-4 grid gap-2">
       <div className="flex items-center gap-2">
@@ -43,9 +70,6 @@ function DashCard({ title, metric, rise }: DashCardProps) {
       </div>
       <p className="text-3xl md:text-4xl font-semibold">
         {metric.toLocaleString()}
-      </p>
-      <p className="text-xs md:text-sm text-gray-11">
-        <span className="text-grass-9">{`${rise}%`}</span> in the last 30 days{" "}
       </p>
     </div>
   );
@@ -112,7 +136,7 @@ function PatientsTable() {
         </thead>
         <tbody className="divide-y divide-gray-6">
           {placeholderData.map((patient, index) => (
-            <tr key={`${patient.id}-${index}`} >
+            <tr key={`${patient.id}-${index}`}>
               <td className="px-5 py-4">{index + 1}</td>
               <td>{patient.name}</td>
               <td>{patient.id}</td>

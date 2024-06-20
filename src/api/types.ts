@@ -1,6 +1,7 @@
 export interface GetCurrentUserResponse {
   data: {
     hospital: string;
+    department?: string;
     user: User;
   };
 }
@@ -72,4 +73,21 @@ export interface Doctor {
   department: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface GetDepartmentRecords{
+  data: HospitalRecord[];
+}
+export interface HospitalRecord {
+  _id: string;
+  patient: unknown;
+  doctor: Doctor;
+  hospital: Hospital;
+  department: Department;
+  date: Date;
+  complaint: string[];
+  record_id: string;
+  doctorsReport: string[];
+  prescription: string[];
+  treatment: string[];
 }

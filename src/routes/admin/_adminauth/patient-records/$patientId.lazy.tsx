@@ -44,6 +44,8 @@ function PatientDetails() {
   );
 }
 
+
+
 function PatientRecords() {
   return (
     <div className="bg-white rounded-xl mt-6 p-4">

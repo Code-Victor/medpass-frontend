@@ -7,11 +7,12 @@ import {
   GetDepartmentsResponse,
   GetDepartmentResponse,
   GetDoctorsResponse,
+  GetDepartmentRecords,
 } from "./types";
 
 //   "email": "victor.hamzat@kibo.school",
 //   "password": "@Promise05"
-const BASE_URL = "https://rough-angle-curious-middle-production.pipeops.app/";
+const BASE_URL = "https://medpass-backend.pipeops.app/";
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -351,4 +352,47 @@ export async function inviteDoctor({
     data
   );
   return response.data;
+}
+
+export async function getDepartmentRecords({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
+  const response = await api.get<GetDepartmentRecords>(
+    `/hospital/${hospitalId}/department/records/${departmentId}`
+  );
+  return response.data.data;
+}
+
+export async function getDashboardInfo({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
+  const response = await api.get<{
+    data: {
+      doctorCount: number;
+      recordCount: number;
+      admissionCount: number;
+    };
+  }>(`/hospital/${hospitalId}/department/dashboard/${departmentId}`);
+  return response.data.data;
+}
+
+export async function getAddmittedPatients({
+  hospitalId,
+  departmentId,
+}: {
+  hospitalId: string;
+  departmentId: string;
+}) {
+  const response = await api.get(
+    `hospital/admitted-patient/${hospitalId}?departmentId`+departmentId
+  );
+  return response.data
 }

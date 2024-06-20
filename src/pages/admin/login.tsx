@@ -32,7 +32,8 @@ const Login = () => {
     </div>
   );
 };
-const fallback = "/admin" as const;
+const fallbackDocotor = "/admin" as const;
+const fallbackAdmin = "/admin/department" as const;
 const routeApi = getRouteApi("/admin/login");
 const loginFormSchema = z.object({
   email: z
@@ -52,8 +53,18 @@ function LoginForm() {
       onSuccess(data) {
         toast.success("Loggged in successfully");
         setToken(data.data.accessToken);
+        if (data.data.user.role === "doctor") {
+          navigate({ to: search.redirect || fallbackDocotor });
+          return;
+        }
+        if (search.redirect === "/admin") {
+          navigate({
+            to: fallbackAdmin,
+          });
+          return;
+        }
         navigate({
-          to: search.redirect || fallback,
+          to: search.redirect || fallbackAdmin,
         });
       },
     });

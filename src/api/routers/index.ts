@@ -99,4 +99,10 @@ export const departmentRouter = router("department", {
   inviteDoctor: router.mutation({
     mutationFn: api.inviteDoctor,
   }),
+  getRecords: router.query({
+    fetcher: api.getDepartmentRecords
+  }),
+  getDashboardInfo: router.query({
+    fetcher: api.getDashboardInfo
+  })
 });

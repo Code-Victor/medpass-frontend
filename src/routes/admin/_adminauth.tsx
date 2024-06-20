@@ -1,5 +1,10 @@
 import React from "react";
-import { createFileRoute, Outlet, Link, redirect } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Outlet,
+  Link,
+  redirect,
+} from "@tanstack/react-router";
 import Logo from "@/assets/logo.svg";
 import { IconButton } from "@/components/ui/icon-button";
 import { cn } from "@/lib/utils";
@@ -16,37 +21,39 @@ import { authRouter } from "@/api/routers";
 
 //TODO: implement Authentication flow: https://tanstack.com/router/latest/docs/framework/react/examples/authenticated-routes
 export const Route = createFileRoute("/admin/_adminauth")({
-  beforeLoad: async ({ context: { queryClient },location }) => {
+  beforeLoad: async ({ context: { queryClient }, location }) => {
     try {
       await queryClient.ensureQueryData(authRouter.me.getFetchOptions());
     } catch (error) {
-       throw redirect({
-        to: '/admin/login',
+      throw redirect({
+        to: "/admin/login",
         search: {
           redirect: location.href,
         },
-      })
+      });
     }
-
   },
-  
+
   component: AuthLayout,
 });
 
 function AuthLayout() {
+  const { data: user } = authRouter.me.useQuery();
   return (
     <div className="bg-[#F7F7F8] dark:bg-bluedark-1 min-h-screen">
       <div className="flex">
         <Sidebar>
-          <Link to="/admin" activeOptions={{ exact: true }} preload="intent">
-            {({ isActive }) => (
-              <SidebarItem
-                icon={<Category size={24} />}
-                text="Dashboard"
-                active={isActive}
-              />
-            )}
-          </Link>
+          {user?.user.role !== "admin" && (
+            <Link to="/admin" activeOptions={{ exact: true }} preload="intent">
+              {({ isActive }) => (
+                <SidebarItem
+                  icon={<Category size={24} />}
+                  text="Dashboard"
+                  active={isActive}
+                />
+              )}
+            </Link>
+          )}
           <Link to="/admin/department" preload="intent">
             {({ isActive }) => (
               <SidebarItem
