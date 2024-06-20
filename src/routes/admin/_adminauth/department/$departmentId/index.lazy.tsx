@@ -54,7 +54,12 @@ function Department() {
           )}
           <div className="grid gap-4 grid-cols-3">
             <div className="col-span-2">
-              <MedicalReports />
+              <MedicalReports
+                {...{
+                  hospitalId: hospitalId!,
+                  departmentId,
+                }}
+              />
             </div>
             <DoctorPane
               {...{
@@ -90,7 +95,7 @@ function DoctorPane({
       <h2 className="font-semibold text-xl px-6 py-4">Doctors</h2>
       <div className="flex-1 divide-y">
         {doctors?.length === 0 && (
-          <div className="flex justify-center items-center h-32">   
+          <div className="flex justify-center items-center h-32">
             <p className="text-gray-9">No doctors available</p>
           </div>
         )}

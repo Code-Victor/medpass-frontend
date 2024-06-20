@@ -35,6 +35,7 @@ function DashInsight() {
       hospitalId: user?.hospital ?? "",
       departmentId: user?.department ?? "",
     },
+    enabled: !!user?.hospital && !!user?.department,
   });
   console.log({ data });
   if (isLoading) {
@@ -48,9 +49,9 @@ function DashInsight() {
   }
   return (
     <div className="grid grid-cols-3 gap-6 mt-4">
-      <DashCard title="Doctor's Count" metric={data?.recordCount} />
-      <DashCard title="Record Count" metric={data?.recordCount} />
-      <DashCard title="Admission Count" metric={data?.admissionCount} />
+      <DashCard title="Doctor's Count" metric={data?.recordCount ?? 0} />
+      <DashCard title="Record Count" metric={data?.recordCount ?? 0} />
+      <DashCard title="Admission Count" metric={data?.admissionCount ?? 0} />
     </div>
   );
 }
