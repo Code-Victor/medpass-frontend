@@ -42,14 +42,14 @@ export function AISearch({ patientId }: { patientId: string }) {
 
   return (
     <>
-      <IconButton label="AI search" className="text-white items-center ">
+      <IconButton label="AI search" onClick={()=>setOpen(true)} className="text-white items-center absolute bottom-14 right-14 animation-bounce ">
         <svg
           xmlns="http://www.w3.org/2000/svg"
-          width="16"
-          height="17"
+          width="24"
+          height="24"
           fill="none"
           aria-label="Stars AI"
-          className="w-6 h-6"
+          className="w-4 h-4"
         >
           <path
             fill="currentColor"
@@ -89,7 +89,9 @@ export function AISearch({ patientId }: { patientId: string }) {
 
             <div className="flex gap-2 items-center ">
               <img alt="star" className="w-6 h-6" src={AI} />
-              <p className="text-sm font-medium">Ask Medpass AI Anything</p>
+              <p className="text-sm font-medium">
+                Search Diagnosis with Medpass AI
+              </p>
             </div>
 
             <kbd className="inline-flex gap-1 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-2.5 py-1 font-medium text-slate-4 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">

@@ -86,7 +86,7 @@ function PatientDetails() {
         </div>
         <PatientRecords id={patientId} />
       </section>
-      <AISearch/>
+      <AISearch {...{ patientId }} />
     </main>
   );
 }
@@ -146,7 +146,7 @@ function RecordItem(props: RecordItemProps) {
         </h2>
         <p className="text-gray-10 text-sm">
           <span className="font-medium">Ref by:</span>
-          {props.doctor.user.fullName}
+          {props.doctor.user?.fullName}
         </p>
         <div className="">
           <Button variant="ghost" size="sm">
@@ -154,7 +154,9 @@ function RecordItem(props: RecordItemProps) {
           </Button>
         </div>
       </div>
-      <p className="text-gray-10">{new Date(props.createdAt).toDateString()}</p>
+      <p className="text-gray-10">
+        {new Date(props?.createdAt ?? new Date()).toDateString()}
+      </p>
     </div>
   );
 }

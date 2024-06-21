@@ -17,7 +17,7 @@ import {
 
 //   "email": "victor.hamzat@kibo.school",
 //   "password": "@Promise05"
-const BASE_URL = "https://ce3f-102-89-23-240.ngrok-free.app/";
+const BASE_URL = "https://dandy-voyage-violent-letters-production.pipeops.app/";
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -141,7 +141,9 @@ export async function getPatientRecords(data: {
   if (data.hospitalId) {
     params.append("hospitalId", data.hospitalId);
   }
-  const response = await api.get<GetRecordsResponse>(`/patient/record/${data.patientId}?${params}`);
+  const response = await api.get<GetRecordsResponse>(
+    `/patient/record/${data.patientId}?${params}`
+  );
   return response.data;
 }
 
@@ -414,12 +416,17 @@ export async function admitPatient({ patientId, ...data }: AdmitPatientData) {
     data
   );
   return response.data.data;
-  }
-  
- export async function AISearch({search,patientId}:{search:string;patientId:string;}){
+}
+
+export async function AISearch({
+  search,
+  patientId,
+}: {
+  search: string;
+  patientId: string;
+}) {
   const response = await api.post<{ data: IRecord[] }>(
     `/patient/search/ai/${patientId}?search=${search}`
   );
   return response.data.data;
-
 }
