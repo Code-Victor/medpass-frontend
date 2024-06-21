@@ -230,7 +230,9 @@ function DepartmentCard(props: DeparmentCardProps) {
           departmentId: props.id,
         }}
       >
-        <Button variant="outline">Manage</Button>
+        <Button variant="outline" disabled={props.disabled}>
+          Manage
+        </Button>
       </Link>
     </div>
   );

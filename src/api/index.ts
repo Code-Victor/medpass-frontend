@@ -8,12 +8,16 @@ import {
   GetDepartmentResponse,
   GetDoctorsResponse,
   GetDepartmentRecords,
+  GetAddmittedPatientsResponse,
   GetPatientResponse,
+  SearchPatientResponse,
+  GetRecordsResponse,
+  IRecord,
 } from "./types";
 
 //   "email": "victor.hamzat@kibo.school",
 //   "password": "@Promise05"
-const BASE_URL = "https://medpass-backend.pipeops.app/";
+const BASE_URL = "https://ce3f-102-89-23-240.ngrok-free.app/";
 const api = axios.create({
   baseURL: BASE_URL,
   headers: {
@@ -137,11 +141,7 @@ export async function getPatientRecords(data: {
   if (data.hospitalId) {
     params.append("hospitalId", data.hospitalId);
   }
-  const response = await api.get(`/patient/record/${data.patientId}?${params}`);
-  return response.data;
-}
-export async function getPatientRecord({ recordId }: { recordId: string }) {
-  const response = await api.get(`/patient/record/${recordId}`);
+  const response = await api.get<GetRecordsResponse>(`/patient/record/${data.patientId}?${params}`);
   return response.data;
 }
 
@@ -182,7 +182,9 @@ export async function updatePatientRecord({
 }
 
 export async function searchPatient({ query }: { query: string }) {
-  const response = await api.get(`/patient/search?patientId=${query}`);
+  const response = await api.get<SearchPatientResponse>(
+    `/patient/search?patientId=${query}`
+  );
   return response.data;
 }
 
@@ -392,8 +394,32 @@ export async function getAddmittedPatients({
   hospitalId: string;
   departmentId: string;
 }) {
-  const response = await api.get(
-    `hospital/admitted-patient/${hospitalId}?departmentId`+departmentId
+  const response = await api.get<GetAddmittedPatientsResponse>(
+    `hospital/admitted-patient/${hospitalId}?departmentId=` + departmentId
   );
-  return response.data
+  return response.data;
+}
+
+interface AdmitPatientData {
+  patientId: string;
+  complaints: string[];
+  symptoms: string[];
+  tests: string[];
+  diagnosis: string[];
+  treatment: { name: string; dosage: string; measurement: string };
+}
+export async function admitPatient({ patientId, ...data }: AdmitPatientData) {
+  const response = await api.post<{ data: unknown }>(
+    `/hospital/admit/${patientId}`,
+    data
+  );
+  return response.data.data;
+  }
+  
+ export async function AISearch({search,patientId}:{search:string;patientId:string;}){
+  const response = await api.post<{ data: IRecord[] }>(
+    `/patient/search/ai/${patientId}?search=${search}`
+  );
+  return response.data.data;
+
 }

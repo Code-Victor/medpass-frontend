@@ -1,17 +1,23 @@
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { authRouter, patientRouter } from "@/api/routers";
+import { PatientInfoCard,AdmitUserForm } from "@/components/inc";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogTrigger
+} from "@/components/ui/dialog";
+import { Skeleton } from "@/components/ui/skeleton";
+import { createLazyFileRoute } from "@tanstack/react-router";
+import {
   Back,
+  ClipboardText,
   Clock,
   Health,
-  MessageText,
   Message,
+  MessageText,
   Profile,
-  ClipboardText,
 } from "iconsax-react";
-import { PatientInfoCard } from "@/components/inc";
-import { patientRouter } from "@/api/routers";
-import { Skeleton } from "@/components/ui/skeleton";
+import React from "react";
 
 export const Route = createLazyFileRoute(
   "/admin/_adminauth/patient-records/records/$patientId"
@@ -20,6 +26,9 @@ export const Route = createLazyFileRoute(
 });
 
 function Records() {
+  const [open, setOpen] = React.useState(false);
+  const { data: user } = authRouter.me.useQuery();
+  console.log({ user });
   const { patientId } = Route.useParams();
   const { data: patient } = patientRouter.get.useQuery({
     variables: {
@@ -37,7 +46,19 @@ function Records() {
           <h1 className="font-semibold text-2xl">Patients Details</h1>
           <div className="flex gap-2">
             <Button variant="outline">Record Patient Visit</Button>
-            <Button>Admit Patient</Button>
+            {/* {user?.user.role === "doctor" && ( */}
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild>
+                <Button>Admit Patient</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[580px]">
+                <AdmitUserForm
+                  patientId={patientId}
+                  close={() => setOpen(false)}
+                />
+              </DialogContent>
+            </Dialog>
+            {/* )} */}
           </div>
         </div>
         <div className="grid grid-cols-4 gap-6 mt-4">
@@ -202,3 +223,4 @@ function Prescription() {
 function PrescriptionItem() {
   return <div></div>;
 }
+

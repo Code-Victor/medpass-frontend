@@ -1,11 +1,18 @@
+import React from "react";
 import { Button } from "@/components/ui/button";
 import { createLazyFileRoute } from "@tanstack/react-router";
 import { Back } from "iconsax-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PatientInfoCard } from "@/components/inc";
+import {
+  PatientInfoCard,
+  AdmitUserForm,
+  RecordVisitForm,
+} from "@/components/inc";
 import { authRouter, patientRouter } from "@/api/routers";
 import { Skeleton } from "@/components/ui/skeleton";
-
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import { IRecord } from "@/api/types";
+import { AISearch } from "@/components/inc/ai-search";
 export const Route = createLazyFileRoute(
   "/admin/_adminauth/patient-records/$patientId"
 )({
@@ -13,6 +20,8 @@ export const Route = createLazyFileRoute(
 });
 
 function PatientDetails() {
+  const [open, setOpen] = React.useState(false);
+  const [openVisit, setOpenVisit] = React.useState(false);
   const navigate = Route.useNavigate();
   const { patientId } = Route.useParams();
   const { data: user } = authRouter.me.useQuery();
@@ -21,7 +30,6 @@ function PatientDetails() {
       patientId,
     },
   });
-  console.log();
   return (
     <main className="max-w-5xl mx-auto px-4">
       <Button
@@ -41,8 +49,32 @@ function PatientDetails() {
         <div className="grid gap-4">
           <h1 className="font-semibold text-2xl">Patients Details</h1>
           <div className="flex gap-2">
-            <Button variant="outline">Record Patient Visit</Button>
-            {user?.user.role === "doctor" && <Button>Admit Patient</Button>}
+            {user?.user.role === "doctor" && (
+              <>
+                <Dialog open={openVisit} onOpenChange={setOpenVisit}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline">Record Patient Visit</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[580px]">
+                    <RecordVisitForm
+                      patientId={patientId ?? ""}
+                      close={() => setOpenVisit(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+                <Dialog open={open} onOpenChange={setOpen}>
+                  <DialogTrigger asChild>
+                    <Button>Admit Patient</Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[580px]">
+                    <AdmitUserForm
+                      patientId={patientId}
+                      close={() => setOpen(false)}
+                    />
+                  </DialogContent>
+                </Dialog>
+              </>
+            )}
           </div>
         </div>
         <div className="mt-4">
@@ -54,49 +86,75 @@ function PatientDetails() {
         </div>
         <PatientRecords id={patientId} />
       </section>
+      <AISearch/>
     </main>
   );
 }
 
 function PatientRecords({ id }: { id: string }) {
-  console.log(id)
+  const [currentTab, setCurrentTab] = React.useState("current-hospital");
+  const { data: user } = authRouter.me.useQuery();
+  const { data: records } = patientRouter.getAllRecords.useQuery({
+    variables:
+      currentTab === "current-hospital"
+        ? {
+            patientId: id,
+            hospitalId: user?.hospital ?? "",
+          }
+        : {
+            patientId: id,
+          },
+  });
   return (
     <div className="bg-white rounded-xl mt-6 p-4">
-      <Tabs defaultValue="all-records">
+      <Tabs value={currentTab} onValueChange={(value) => setCurrentTab(value)}>
         <TabsList>
+          <TabsTrigger value="current-hospital">Current Hospital</TabsTrigger>
           <TabsTrigger value="all-records">All records</TabsTrigger>
-          <TabsTrigger value="current-record">Current Hospital</TabsTrigger>
         </TabsList>
         <TabsContent value="all-records">
           <div className="grid gap-4">
-            <RecordItem />
-            <RecordItem />
-            <RecordItem />
+            {records?.data.length === 0 && (
+              <p className="py-4 text-center">No records found</p>
+            )}
+            {records?.data.map((record, i) => (
+              <RecordItem {...record} key={i} />
+            ))}
           </div>
         </TabsContent>
-        <TabsContent value="current-record">
+        <TabsContent value="current-hospital">
           <div className="grid gap-4">
-            <RecordItem />
-            <RecordItem />
-            <RecordItem />
+            {records?.data.length === 0 && (
+              <p className="py-4 text-center">No records found</p>
+            )}
+            {records?.data.map((record, i) => (
+              <RecordItem {...record} key={i} />
+            ))}
           </div>
         </TabsContent>
       </Tabs>
     </div>
   );
 }
-
-function RecordItem() {
+interface RecordItemProps extends IRecord {}
+function RecordItem(props: RecordItemProps) {
   return (
     <div className="flex justify-between items-center">
       <div className="grid gap-1">
-        <h2 className="font-semibold">Record 202416FAQ</h2>
-        <p className="text-gray-10 text-sm">Ref by: Dr Shygami</p>
-        <Button variant="ghost" size="sm">
-          View More
-        </Button>
+        <h2 className=" max-w-[180px] overflow-hidden text-nowrap text-ellipsis">
+          <span className="font-semibold">Record:</span> {props.id}
+        </h2>
+        <p className="text-gray-10 text-sm">
+          <span className="font-medium">Ref by:</span>
+          {props.doctor.user.fullName}
+        </p>
+        <div className="">
+          <Button variant="ghost" size="sm">
+            View More
+          </Button>
+        </div>
       </div>
-      <p className="text-gray-10">January 29th, 2025</p>
+      <p className="text-gray-10">{new Date(props.createdAt).toDateString()}</p>
     </div>
   );
 }
