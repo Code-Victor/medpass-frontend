@@ -192,7 +192,7 @@ function MedicalReports({
             <tr key={`${record._id}-${index}`}>
               <td className="px-5 py-4">{index + 1}</td>
               <td>{record._id}</td>
-              <td>{record.doctor.user.fullName}</td>
+              <td>{record.doctor.user?.fullName}</td>
               <td>
                 <Button variant="ghost">Action</Button>
               </td>
