@@ -56,7 +56,7 @@ if (!rootElement.innerHTML) {
   root.render(
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <Toaster richColors />
+        <Toaster position="top-center" richColors />
         <RouterProvider router={router} />
       </QueryClientProvider>
     </React.StrictMode>

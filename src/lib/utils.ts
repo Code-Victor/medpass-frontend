@@ -45,6 +45,11 @@ export const phoneNumberSchema = z
     }
   );
 
-  export async function sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  }
+export async function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export function splitByNewline(text: string): string[] {
+  const splittedText = text.split(/\r?\n/);
+  return splittedText.flatMap((t) => (t ? [t] : []));
+}

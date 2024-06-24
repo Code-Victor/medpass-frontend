@@ -35,9 +35,6 @@ export const patientRouter = router("patient", {
   getAllRecords: router.query({
     fetcher: api.getPatientRecords,
   }),
-  getRecord: router.query({
-    fetcher: api.getPatientRecord,
-  }),
   addRecord: router.mutation({
     mutationFn: api.addPatientRecord,
   }),
@@ -53,6 +50,15 @@ export const patientRouter = router("patient", {
   updateBioData: router.mutation({
     mutationFn: api.updatePatientBioData,
   }),
+  admit: router.mutation({
+    mutationFn: api.admitPatient,
+  }),
+  getAdmittedPatients: router.query({
+    fetcher: api.getAddmittedPatients,
+  }),
+  aiSearch: router.query({
+    fetcher: api.AISearch
+  })
 });
 
 export const notificationsRouter = router("notifications", {

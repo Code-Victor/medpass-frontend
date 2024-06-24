@@ -1,7 +1,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@radix-ui/react-label";
 import { Button } from "@/components/ui/button";
-import { createLazyFileRoute } from "@tanstack/react-router";
+import { Link, createLazyFileRoute } from "@tanstack/react-router";
 import { SearchNormal1 } from "iconsax-react";
 import {
   Dialog,
@@ -43,7 +43,6 @@ function PatientRecords() {
   const [search, setSearch] = React.useState("");
   const [open, setOpen] = React.useState(false);
   const { data } = patientRouter.search.useQuery({
-    enabled: search.length > 2,
     variables: {
       query: search,
     },
@@ -73,7 +72,15 @@ function PatientRecords() {
             placeholder="Enter unique patient ID"
           />
         </div>
-        {data && <PatientCard />}
+        {data?.data.map((d) => (
+          <PatientCard
+            name={d.user.fullName}
+            patientId={d.patientId}
+            id={d.id}
+            gender={d.biodata.gender}
+            bloodGroup={d.biodata.bloodGroup}
+          />
+        ))}
         <p className="text-center">Or</p>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
@@ -404,7 +411,19 @@ function RegisterPatientForm(props: { close: () => void }) {
   );
 }
 
-function PatientCard() {
+function PatientCard({
+  name,
+  patientId,
+  id,
+  gender,
+  bloodGroup,
+}: {
+  name: string;
+  patientId: string;
+  id: string;
+  gender: string;
+  bloodGroup: string;
+}) {
   return (
     <div className="grid grid-cols-3 bg-white rounded-xl max-w-lg w-full px-6 py-4">
       <div className="flex flex-col gap-2 justify-center items-center">
@@ -414,25 +433,30 @@ function PatientCard() {
           alt="avatar"
         />
         <div className="grid gap-1">
-          <p className="font-semibold text-center">Daniel Alao</p>
-          <p className="text-gray-9 text-xs text-center">ID 000 455</p>
+          <p className="font-semibold text-center capitalize">{name}</p>
+          <p className="text-gray-9 text-xs text-center">{patientId}</p>
         </div>
       </div>
       <div className="flex flex-col gap-2 col-span-2 border-l border-l-gray-6 pl-4">
         <div className="grid gap-1 flex-1">
           <p className="text-sm font-semibold">info</p>
           <p className="text-xs text-gray-9">
-            <span className="font-semibold">Date of birth: </span>
-            09/23/1990
+            <span className="font-semibold">Gender: </span>
+            {gender}
           </p>
           <p className="text-xs text-gray-9">
-            <span className="text-xs font-semibold">Admission Status: </span>
-            In consultation
+            <span className="text-xs font-semibold">Blood Group: </span>
+            {bloodGroup}
           </p>
         </div>
         <div className="flex gap-2 justify-end">
           <Button variant="outline">Continue to Records</Button>
-          <Button>Admit</Button>
+          <Link
+            to="/admin/patient-records/$patientId"
+            params={{ patientId: id }}
+          >
+            <Button>Admit</Button>
+          </Link>
         </div>
       </div>
     </div>

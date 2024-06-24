@@ -1,4 +1,5 @@
-import { authRouter, departmentRouter } from "@/api/routers";
+import React from "react";
+import { authRouter, departmentRouter, patientRouter } from "@/api/routers";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -76,35 +77,24 @@ function DashCard({ title, metric }: DashCardProps) {
   );
 }
 
-const placeholderData = [
-  {
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-    admissionDate: new Date(),
-  },
-  {
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-    admissionDate: new Date(),
-  },
-  {
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-    admissionDate: new Date(),
-  },
-  {
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-    admissionDate: new Date(),
-  },
-  {
-    name: "Victor Hamzat",
-    id: "HOSP-001",
-    admissionDate: new Date(),
-  },
-];
-
 function PatientsTable() {
+  const [search, setSearch] = React.useState("");
+  const { data: user } = authRouter.me.useQuery();
+  const { data: patients, isLoading } =
+    patientRouter.getAdmittedPatients.useQuery({
+      variables: {
+        hospitalId: user?.hospital ?? "",
+        departmentId: user?.department ?? "",
+      },
+      enabled: !!user?.hospital && !!user?.department,
+    });
+  const patientData = React.useMemo(
+    () =>
+      patients?.data.filter((d) =>
+        d.user.fullName.toLowerCase().includes(search.toLowerCase())
+      ) ?? [],
+    [patients, search]
+  );
   return (
     <div className="bg-white p-6 rounded-xl grid gap-4 mt-4">
       <h2 className="font-semibold text-2xl md:text-3xl">Admitted Patients</h2>
@@ -120,6 +110,8 @@ function PatientsTable() {
           <Input
             id="patient-search"
             className="pl-10 py-4 bg-white"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search Admitted Patients"
           />
         </div>
@@ -131,18 +123,37 @@ function PatientsTable() {
             <th className="text-left px-5 py-4">No</th>
             <th className="text-left">Patient Name</th>
             <th className="text-left">Patient ID</th>
+            <th className="text-left">Email</th>
             <th className="text-left">Admission Date</th>
             <th className="text-left">Action</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-gray-6">
-          {placeholderData.map((patient, index) => (
+          {isLoading ? (
+            <tr>
+              <td colSpan={6} className="text-center py-4">
+                <Skeleton className="h-10" />
+              </td>
+            </tr>
+          ) : (
+            patientData.length === 0 && (
+              <tr>
+                <td colSpan={6} className="text-center py-4">
+                  {search
+                    ? `No admitted patients for this search query: "${search}"`
+                    : "No admitted patients"}
+                </td>
+              </tr>
+            )
+          )}
+          {patientData.map((patient, index) => (
             <tr key={`${patient.id}-${index}`}>
               <td className="px-5 py-4">{index + 1}</td>
-              <td>{patient.name}</td>
-              <td>{patient.id}</td>
-              <td>{patient.admissionDate.toDateString()}</td>
-              <td>{patient.admissionDate.toDateString()}</td>
+              <td>{patient.user.fullName}</td>
+              <td>{patient.patientId}</td>
+              <td>{patient.user.email}</td>
+              <td>{new Date(patient.createdAt).toDateString()}</td>
+              <td></td>
             </tr>
           ))}
         </tbody>
